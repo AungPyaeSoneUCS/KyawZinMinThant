@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Complete Course — Modern Edition</title>
+    <script>
+        (function () {
+            var t = localStorage.getItem('html-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --surface-2: #f1f5f9;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e4e9f2;
+            --primary: #6366f1;
+            --primary-2: #8b5cf6;
+            --primary-soft: rgba(99, 102, 241, .12);
+            --code-bg: #0f172a;
+            --code-head: rgba(148, 163, 184, .08);
+            --shadow: 0 18px 40px -22px rgba(15, 23, 42, .35);
+            --sidebar: #0f172a;
+            --sidebar-2: #1e293b;
+            --sidebar-text: #cbd5e1;
+            --ok: #10b981;
+        }
+
+        html[data-theme="dark"] {
+            --bg: #0b1120;
+            --surface: #0f172a;
+            --surface-2: #131c30;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --border: #1e293b;
+            --primary: #818cf8;
+            --primary-2: #a78bfa;
+            --primary-soft: rgba(129, 140, 248, .16);
+            --code-bg: #020617;
+            --sidebar: #0b1120;
+            --sidebar-2: #111c33;
+            --shadow: 0 18px 40px -22px rgba(0, 0, 0, .8);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: var(--primary); }
+
+        /* ---------- Sidebar ---------- */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            width: 320px;
+            background: linear-gradient(180deg, var(--sidebar), var(--sidebar-2));
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            z-index: 60;
+            transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .brand {
+            padding: 20px 22px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, .15);
+        }
+
+        .brand-logo {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: grid; place-items: center;
+            font-weight: 800; font-size: 18px; color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 8px 18px -6px rgba(99, 102, 241, .8);
+        }
+
+        .brand h1 { font-size: 15px; margin: 0; color: #fff; letter-spacing: .2px; }
+        .brand span { font-size: 12px; color: #94a3b8; }
+
+        .search {
+            padding: 14px 16px 6px;
+            position: relative;
+        }
+
+        .search input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, .22);
+            background: rgba(2, 6, 23, .45);
+            color: #e2e8f0;
+            font-size: 13.5px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .search input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .25);
+        }
+
+        .search svg {
+            position: absolute;
+            left: 28px; top: 50%;
+            transform: translateY(-38%);
+            width: 15px; height: 15px;
+            color: #64748b;
+        }
+
+        .nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #334155 transparent;
+        }
+
+        .nav::-webkit-scrollbar { width: 8px; }
+        .nav::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+
+        .part-head {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 11px 12px;
+            border: 0;
+            border-radius: 10px;
+            background: rgba(148, 163, 184, .08);
+            color: #e2e8f0;
+            font: inherit;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            text-align: left;
+            cursor: pointer;
+            transition: background .18s;
+        }
+
+        .part-head:hover { background: rgba(148, 163, 184, .16); }
+        .part-head .arrow { margin-left: auto; width: 14px; height: 14px; color: #94a3b8; transition: transform .2s; }
+        .part-head.open .arrow { transform: rotate(90deg); }
+
+        .nav-group {
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #7c8aa3;
+            font-weight: 700;
+            padding: 13px 12px 4px;
+            line-height: 1.4;
+        }
+
+        .nav-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px 8px 16px;
+            border: 0;
+            background: transparent;
+            color: var(--sidebar-text);
+            font: inherit;
+            font-size: 13.5px;
+            text-align: left;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background .18s, color .18s;
+        }
+
+        .nav-item:hover { background: rgba(148, 163, 184, .12); color: #fff; }
+        .nav-item .nav-num {
+            width: 26px; height: 22px; flex: none;
+            display: grid; place-items: center;
+            font-size: 10.5px; font-weight: 700;
+            border-radius: 6px;
+            background: rgba(148, 163, 184, .15);
+            color: #cbd5e1;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .9), rgba(139, 92, 246, .85));
+            color: #fff;
+            box-shadow: 0 10px 20px -12px rgba(99, 102, 241, .9);
+        }
+
+        .nav-item.active .nav-num { background: rgba(255, 255, 255, .22); color: #fff; }
+        .nav-item.done .nav-num { background: rgba(16, 185, 129, .2); color: #34d399; }
+        .nav-item.done.active .nav-num { background: rgba(255, 255, 255, .22); color: #fff; }
+
+        .sidebar-foot {
+            padding: 14px 18px 20px;
+            border-top: 1px solid rgba(148, 163, 184, .15);
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .track {
+            height: 7px;
+            border-radius: 99px;
+            background: rgba(148, 163, 184, .2);
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .track > i {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-2));
+            transition: width .4s ease;
+        }
+
+        /* ---------- Main ---------- */
+        .main {
+            margin-left: 320px;
+            min-height: 100vh;
+            padding: 26px 44px 90px;
+        }
+
+        .inner { max-width: 980px; margin: 0 auto; }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .crumb { font-size: 13px; color: var(--muted); flex: 1; }
+        .crumb b { color: var(--text); font-weight: 600; }
+
+        .icon-btn {
+            margin-left: auto;
+            width: 42px; height: 42px;
+            display: grid; place-items: center;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            transition: transform .18s, box-shadow .18s, border-color .18s;
+        }
+
+        .icon-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); border-color: var(--primary); }
+        .icon-btn svg { width: 19px; height: 19px; }
+
+        .menu-btn {
+            display: none;
+            width: 42px; height: 42px;
+            place-items: center;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .doc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 44px 46px 48px;
+            box-shadow: var(--shadow);
+            animation: rise .42s cubic-bezier(.2, .7, .2, 1);
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: var(--primary-soft);
+            padding: 5px 11px;
+            border-radius: 99px;
+            margin-bottom: 12px;
+        }
+
+        .doc h2 {
+            font-size: 1.9rem;
+            line-height: 1.2;
+            margin: 0 0 18px;
+            letter-spacing: -.02em;
+        }
+
+        .doc h3 {
+            font-size: 1.15rem;
+            margin: 28px 0 10px;
+            letter-spacing: -.01em;
+        }
+
+        .doc p { margin: 0 0 14px; color: var(--text); }
+
+        .doc ul { margin: 0 0 16px; padding-left: 22px; }
+        .doc li { margin: 6px 0; }
+
+        .doc p code, .doc li code, .doc td code {
+            font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+            font-size: .86em;
+            background: var(--primary-soft);
+            color: var(--primary);
+            padding: .12em .42em;
+            border-radius: 6px;
+        }
+
+        /* ---------- Code blocks ---------- */
+        .code {
+            margin: 18px 0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--code-bg);
+            border: 1px solid rgba(148, 163, 184, .16);
+            box-shadow: var(--shadow);
+        }
+
+        .code-head {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 14px;
+            background: var(--code-head);
+            border-bottom: 1px solid rgba(148, 163, 184, .12);
+        }
+
+        .dots { display: flex; gap: 6px; }
+        .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+        .dots i:nth-child(1) { background: #ff5f57; }
+        .dots i:nth-child(2) { background: #febc2e; }
+        .dots i:nth-child(3) { background: #28c840; }
+
+        .code-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-left: 8px;
+            letter-spacing: .03em;
+        }
+
+        .copy {
+            margin-left: auto;
+            border: 1px solid rgba(148, 163, 184, .28);
+            background: transparent;
+            color: #cbd5e1;
+            font: inherit;
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s, color .2s, border-color .2s;
+        }
+
+        .copy:hover { background: rgba(148, 163, 184, .16); }
+        .copy.ok { color: #34d399; border-color: #34d399; }
+
+        .code pre {
+            margin: 0;
+            padding: 18px 20px;
+            overflow: auto;
+            font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+            font-size: 13.5px;
+            line-height: 1.75;
+            color: #e2e8f0;
+            tab-size: 4;
+        }
+
+        .code pre code { background: none; color: inherit; padding: 0; }
+
+        .t-kw { color: #c792ea; }
+        .t-str { color: #c3e88d; }
+        .t-num { color: #f78c6c; }
+        .t-com { color: #5c6b8a; font-style: italic; }
+
+        /* ---------- Pager ---------- */
+        .pager {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 34px;
+            padding-top: 26px;
+            border-top: 1px solid var(--border);
+        }
+
+        .pager button {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 190px;
+            padding: 13px 18px;
+            border-radius: 13px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font: inherit;
+            cursor: pointer;
+            text-align: left;
+            transition: transform .18s, border-color .18s, box-shadow .18s;
+        }
+
+        .pager button.next { text-align: right; margin-left: auto; }
+        .pager button:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow); }
+        .pager button:disabled { opacity: .4; cursor: not-allowed; }
+        .pager small { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; }
+        .pager b { font-weight: 600; font-size: 14.5px; }
+
+        .backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, .55);
+            backdrop-filter: blur(2px);
+            z-index: 55;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); box-shadow: 0 0 60px rgba(0, 0, 0, .5); }
+            body.nav-open .sidebar { transform: none; }
+            body.nav-open .backdrop { display: block; }
+            .main { margin-left: 0; padding: 18px 18px 70px; }
+            .menu-btn { display: grid; }
+            .doc { padding: 28px 22px 32px; border-radius: 18px; }
+            .doc h2 { font-size: 1.55rem; }
+            .pager button { min-width: 0; flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">HTML</div>
+            <div>
+                <h1>HTML Complete Course</h1>
+                <span id="brand-sub">100 lessons · 16 modules</span>
+            </div>
+        </div>
+        <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input id="search" type="search" placeholder="Search 100 topics…" autocomplete="off">
+        </div>
+        <nav class="nav" id="nav"></nav>
+        <div class="sidebar-foot">
+            <div><strong id="progress-text">0 of 0</strong> topics explored</div>
+            <div class="track"><i id="progress-bar"></i></div>
+        </div>
+    </aside>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <main class="main">
+        <div class="inner">
+            <div class="topbar">
+                <button class="menu-btn icon-btn" id="menu-btn" aria-label="Menu" style="margin-left:0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <div class="crumb">Course &nbsp;/&nbsp; <b id="crumb">Loading…</b></div>
+                <a class="icon-btn" href="../index.html" aria-label="Back to home" title="Back to home" style="text-decoration:none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path>
+                    </svg>
+                </a>
+                <button class="icon-btn" id="theme-btn" aria-label="Toggle theme" title="Toggle theme"></button>
+            </div>
+
+            <article class="doc" id="doc"></article>
+        </div>
+    </main>
+
+    <script>
+        /* ---------------- Syntax highlighting ---------------- */
+        function esc(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        var LANG = {
+            re: /(&lt;!--[\s\S]*?--&gt;)|("[^"]*"|'[^']*')|(&lt;\/?[a-zA-Z][\w-]*)|(\d+(?:\.\d+)?)/g
+        };
+
+        function highlight(src) {
+            return esc(src).replace(LANG.re, function (m, com, str, kw, num) {
+                if (com) return '<span class="t-com">' + com + '</span>';
+                if (str) return '<span class="t-str">' + str + '</span>';
+                if (kw) return '<span class="t-kw">' + kw + '</span>';
+                if (num) return '<span class="t-num">' + num + '</span>';
+                return m;
+            });
+        }
+
+        function codeBlock(src, label) {
+            var clean = src.replace(/^\n/, '').replace(/\n[ \t]*$/, '').replace(/\t/g, '    ');
+            return '<div class="code">' +
+                '<div class="code-head"><span class="dots"><i></i><i></i><i></i></span>' +
+                '<span class="code-label">' + (label || 'HTML') + '</span>' +
+                '<button class="copy" onclick="copyCode(this)">Copy</button></div>' +
+                '<pre><code>' + highlight(clean) + '</code></pre></div>';
+        }
+
+        function t(title, blocks) { return { title: title, body: blocks.join('') }; }
+
+        function copyCode(btn) {
+            var code = btn.closest('.code').querySelector('pre code');
+            var text = code.innerText;
+            var done = function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('ok');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1500);
+            };
+            if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done); }
+            else {
+                var r = document.createRange(); r.selectNode(code);
+                window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
+                document.execCommand('copy'); window.getSelection().removeAllRanges(); done();
+            }
+        }
+
+        /* ---------------- Course content ---------------- */
+        var COURSE = [
+            { short: 'Part 1', name: 'HTML Foundations', modules: [
+
+                { name: 'Module 1 · Getting Started', items: [
+                    t('What is HTML and How the Web Works', [
+                        "<p><b>HTML</b> (HyperText Markup Language) describes the <i>structure</i> and meaning of a web page. It is not a programming language - it is a markup language built from elements that label pieces of content.</p>",
+                        "<p>When you open a page, the browser resolves the URL, sends an HTTP request, receives the HTML, then fetches any CSS, images and scripts it references. It parses the HTML into a tree called the <b>DOM</b> and paints the result.</p>",
+                        codeBlock('<h1>Hello, web</h1>\n<p>My first paragraph.</p>', 'HTML')
+                    ]),
+                    t('Your First HTML Page and Document Structure', [
+                        "<p>Every modern page starts with a <b>doctype</b> followed by a root <code>&lt;html&gt;</code> element containing a <code>&lt;head&gt;</code> (metadata) and a <code>&lt;body&gt;</code> (visible content).</p>",
+                        codeBlock('<!DOCTYPE html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8">\n    <title>My Page</title>\n  </head>\n  <body>\n    <h1>Welcome</h1>\n  </body>\n</html>')
+                    ]),
+                    t('Elements, Tags and Attributes', [
+                        "<p>An <b>element</b> is an opening tag, content, and a closing tag: <code>&lt;p&gt;text&lt;/p&gt;</code>. Some elements are <b>void</b> and have no closing tag, such as <code>&lt;img&gt;</code> and <code>&lt;br&gt;</code>.</p>",
+                        "<p><b>Attributes</b> add extra information inside the opening tag and use <code>name=\"value\"</code> pairs.</p>",
+                        codeBlock('<a href="page.html" target="_blank">Visit</a>\n<img src="cat.png" alt="A sleeping cat">')
+                    ]),
+                    t('Comments, Whitespace and Case', [
+                        "<p>Comments document your markup and are invisible to users. Whitespace in your source is collapsed by the browser, so indentation only affects readability.</p>",
+                        "<p>HTML tag names are case-insensitive, but lowercase is the accepted convention.</p>",
+                        codeBlock('<p>Line one</p>\n<p>Still separates   the   text</p>')
+                    ]),
+                    t('Viewing Pages and Developer Tools', [
+                        "<p>Open a saved <code>.html</code> file in any browser. Press <b>F12</b> (or right-click, Inspect) to open Developer Tools and explore the live DOM.</p>",
+                        "<p>The <b>Elements</b> panel shows the parsed structure - often different from your source after the browser fixes mistakes.</p>"
+                    ])
+                ]},
+
+                { name: 'Module 2 · Text and Semantics', items: [
+                    t('Headings h1 to h6', [
+                        "<p>Headings create a document outline and help search engines and screen readers understand your page. Use one <code>&lt;h1&gt;</code> per page and never skip levels for styling - use CSS instead.</p>",
+                        codeBlock('<h1>Page title</h1>\n<h2>Section</h2>\n<h3>Subsection</h3>')
+                    ]),
+                    t('Paragraphs, Line Breaks and Rules', [
+                        "<p>Use <code>&lt;p&gt;</code> for blocks of text. Use <code>&lt;br&gt;</code> only for meaningful line breaks such as poetry or addresses, and <code>&lt;hr&gt;</code> to mark a thematic break.</p>",
+                        codeBlock('<p>First paragraph.</p>\n<hr>\n<p>Second paragraph.</p>')
+                    ]),
+                    t('Emphasis: strong, em, mark, small', [
+                        "<p>Use <code>&lt;strong&gt;</code> for importance and <code>&lt;em&gt;</code> for emphasis. <code>&lt;mark&gt;</code> highlights, and <code>&lt;small&gt;</code> is for fine print like legal text.</p>",
+                        codeBlock('<p><strong>Warning:</strong> read the <em>entire</em> manual.</p>\n<p>The result was <mark>12 wins</mark>.</p>')
+                    ]),
+                    t('Lists: ul, ol and dl', [
+                        "<p>Use <code>&lt;ul&gt;</code> for unordered lists, <code>&lt;ol&gt;</code> for ordered ones (with <code>start</code> and <code>reversed</code> options), and <code>&lt;dl&gt;</code> for term and definition pairs.</p>",
+                        codeBlock('<ul>\n  <li>HTML</li>\n  <li>CSS</li>\n</ul>\n<dl>\n  <dt>DOM</dt>\n  <dd>Document Object Model</dd>\n</dl>')
+                    ]),
+                    t('Preformatted Text, Code and Quotes', [
+                        "<p><code>&lt;pre&gt;</code> preserves whitespace, <code>&lt;code&gt;</code> marks code, and <code>&lt;blockquote&gt;</code> with <code>&lt;cite&gt;</code> marks quotations.</p>",
+                        codeBlock('<pre><code>function greet() {\n  return "hi";\n}</code></pre>\n<blockquote>\n  <p>Simplicity is the soul of efficiency.</p>\n</blockquote>')
+                    ])
+                ]},
+
+                { name: 'Module 3 · Links, Images and Media', items: [
+                    t('The Anchor Element and href', [
+                        "<p>The <code>&lt;a&gt;</code> element creates hyperlinks. The <code>href</code> attribute holds the destination; <code>target=\"_blank\"</code> opens a new tab and is best paired with <code>rel=\"noopener\"</code>.</p>",
+                        codeBlock('<a href="about.html">About</a>\n<a href="https://example.com" target="_blank" rel="noopener">External</a>')
+                    ]),
+                    t('Absolute versus Relative URLs', [
+                        "<p>An <b>absolute</b> URL includes the full address. A <b>relative</b> URL is resolved against the current page, which keeps sites portable between environments.</p>",
+                        codeBlock('<a href="/blog/post.html">From the site root</a>\n<a href="post.html">Same folder</a>\n<a href="../index.html">Up one folder</a>')
+                    ]),
+                    t('Images: src, alt, width and height', [
+                        "<p><code>alt</code> is required for accessibility and shown if the image fails to load. Always set <code>width</code> and <code>height</code> so the layout does not jump while the image loads.</p>",
+                        codeBlock('<img src="photo.jpg" alt="Sunset over the sea" width="640" height="360">')
+                    ]),
+                    t('figure, figcaption and picture', [
+                        "<p><code>&lt;figure&gt;</code> groups media with its caption. <code>&lt;picture&gt;</code> lets you supply different sources for different screen sizes or formats.</p>",
+                        codeBlock('<figure>\n  <img src="chart.png" alt="Sales chart">\n  <figcaption>Quarterly sales, 2026</figcaption>\n</figure>\n<picture>\n  <source srcset="hero.webp" type="image/webp">\n  <img src="hero.jpg" alt="Hero">\n</picture>')
+                    ]),
+                    t('Audio, Video and iframes', [
+                        "<p><code>&lt;video&gt;</code> and <code>&lt;audio&gt;</code> embed media with optional <code>controls</code>. <code>&lt;iframe&gt;</code> embeds another page inside yours.</p>",
+                        codeBlock('<video controls width="320">\n  <source src="clip.mp4" type="video/mp4">\n</video>\n<iframe src="page.html" title="Embedded page"></iframe>')
+                    ])
+                ]},
+
+                { name: 'Module 4 · Tables and Data', items: [
+                    t('Table Basics: table, tr, th and td', [
+                        "<p>A table is a grid of rows (<code>&lt;tr&gt;</code>) and cells (<code>&lt;th&gt;</code> for headers, <code>&lt;td&gt;</code> for data). Use tables only for tabular data, never for layout.</p>",
+                        codeBlock('<table>\n  <tr><th>Name</th><th>Score</th></tr>\n  <tr><td>Ada</td><td>98</td></tr>\n</table>')
+                    ]),
+                    t('Table Head, Body and Foot', [
+                        "<p>Group rows semantically with <code>&lt;thead&gt;</code>, <code>&lt;tbody&gt;</code> and <code>&lt;tfoot&gt;</code>. This helps screen readers and allows the body to scroll independently.</p>",
+                        codeBlock('<table>\n  <thead><tr><th>Item</th><th>Price</th></tr></thead>\n  <tbody><tr><td>Book</td><td>12</td></tr></tbody>\n  <tfoot><tr><td>Total</td><td>12</td></tr></tfoot>\n</table>')
+                    ]),
+                    t('Spanning Cells: colspan and rowspan', [
+                        "<p>Make a cell stretch across columns with <code>colspan</code> or across rows with <code>rowspan</code>.</p>",
+                        codeBlock('<table>\n  <tr><th colspan="2">Results</th></tr>\n  <tr><td rowspan="2">Team A</td><td>Win</td></tr>\n  <tr><td>Loss</td></tr>\n</table>')
+                    ]),
+                    t('Captions and Column Groups', [
+                        "<p><code>&lt;caption&gt;</code> gives a table a title. <code>&lt;colgroup&gt;</code> and <code>&lt;col&gt;</code> let you style whole columns.</p>",
+                        codeBlock('<table>\n  <caption>Monthly budget</caption>\n  <colgroup><col><col class="amount"></colgroup>\n  <tr><th>Item</th><th>Cost</th></tr>\n</table>')
+                    ]),
+                    t('When Not to Use Tables', [
+                        "<p>Tables should describe data, not arrange a page. For layout, use modern CSS such as Flexbox or Grid instead.</p>",
+                        "<p>A quick test: if you would not print it in a spreadsheet, it probably is not a table.</p>"
+                    ])
+                ]},
+
+                { name: 'Module 5 · Forms, Part 1', items: [
+                    t('The form Element and Submitting Data', [
+                        "<p>The <code>&lt;form&gt;</code> element wraps controls and defines where data is sent (<code>action</code>) and how (<code>method</code>).</p>",
+                        codeBlock('<form action="/subscribe" method="post">\n  <input name="email" type="email">\n  <button>Subscribe</button>\n</form>')
+                    ]),
+                    t('Input Types Overview', [
+                        "<p>The <code>type</code> attribute changes behavior and keyboard on mobile: <code>text</code>, <code>email</code>, <code>password</code>, <code>number</code>, <code>date</code>, <code>color</code>, <code>range</code> and more.</p>",
+                        codeBlock('<input type="email" name="email">\n<input type="number" name="age" min="1" max="120">\n<input type="color" name="theme">')
+                    ]),
+                    t('Labels and Accessibility', [
+                        "<p>Every control needs a <b>label</b>. Associate it either by wrapping the control or by matching <code>for</code> with the control <code>id</code>. Clicking the label then focuses the field.</p>",
+                        codeBlock('<label for="user">Username</label>\n<input id="user" name="user">\n\n<label>\n  Remember me\n  <input type="checkbox" name="remember">\n</label>')
+                    ]),
+                    t('name, value and placeholders', [
+                        "<p><code>name</code> is the key sent to the server and <code>value</code> is the data. <code>placeholder</code> is only a hint - it disappears and should never replace a label.</p>",
+                        codeBlock('<input name="city" value="London">\n<input name="search" placeholder="Search products">')
+                    ]),
+                    t('Buttons: submit, reset and button', [
+                        "<p>A <code>&lt;button&gt;</code> defaults to <code>type=\"submit\"</code>. Use <code>type=\"button\"</code> for actions handled by JavaScript and <code>type=\"reset\"</code> to clear the form.</p>",
+                        codeBlock('<button type="submit">Send</button>\n<button type="button">Preview</button>\n<button type="reset">Clear</button>')
+                    ])
+                ]}
+            ]},
+
+            { short: 'Part 2', name: 'Building Real Pages', modules: [
+
+                { name: 'Module 6 · Forms, Part 2', items: [
+                    t('Select and Option Menus', [
+                        "<p>Use <code>&lt;select&gt;</code> for a drop-down. Options can be grouped with <code>&lt;optgroup&gt;</code> and one marked <code>selected</code>.</p>",
+                        codeBlock('<select name="country">\n  <optgroup label="Europe">\n    <option>France</option>\n    <option selected>Germany</option>\n  </optgroup>\n</select>')
+                    ]),
+                    t('Textarea for Long Text', [
+                        "<p><code>&lt;textarea&gt;</code> collects multi-line text. Its content sits between the tags and <code>rows</code> and <code>cols</code> set the initial size.</p>",
+                        codeBlock('<textarea name="message" rows="4" cols="30">\nWrite here...\n</textarea>')
+                    ]),
+                    t('Checkboxes and Radio Buttons', [
+                        "<p>Checkboxes allow many selections; radios allow one per <code>name</code> group. Sharing a <code>name</code> is what links radios together.</p>",
+                        codeBlock('<label><input type="checkbox" name="tos"> I agree</label>\n\n<label><input type="radio" name="plan" value="free"> Free</label>\n<label><input type="radio" name="plan" value="pro"> Pro</label>')
+                    ]),
+                    t('Fieldsets, Legends and Grouping', [
+                        "<p><code>&lt;fieldset&gt;</code> groups related fields and <code>&lt;legend&gt;</code> gives the group a caption - important for accessibility.</p>",
+                        codeBlock('<fieldset>\n  <legend>Shipping address</legend>\n  <input name="street" placeholder="Street">\n</fieldset>')
+                    ]),
+                    t('Built-in Validation Attributes', [
+                        "<p>Browsers can validate for you with <code>required</code>, <code>minlength</code>, <code>maxlength</code>, <code>min</code>, <code>max</code>, <code>pattern</code> and <code>type</code>.</p>",
+                        codeBlock('<input type="email" name="email" required>\n<input name="zip" pattern="[0-9]{5}" title="Five digits">')
+                    ])
+                ]},
+
+                { name: 'Module 7 · Page Structure', items: [
+                    t('div and span', [
+                        "<p><code>&lt;div&gt;</code> is a block container and <code>&lt;span&gt;</code> is an inline one. They carry no meaning - use them only when no semantic element fits.</p>",
+                        codeBlock('<div class="card">\n  <span class="badge">New</span>\n</div>')
+                    ]),
+                    t('Semantic Landmarks: header, nav, main and footer', [
+                        "<p>These elements describe page regions and improve navigation for assistive technology. Use one <code>&lt;main&gt;</code> per page.</p>",
+                        codeBlock('<header><h1>Site</h1></header>\n<nav><a href="/">Home</a></nav>\n<main><p>Content</p></main>\n<footer>&copy; 2026</footer>')
+                    ]),
+                    t('section, article and aside', [
+                        "<p><code>&lt;section&gt;</code> is a themed block, <code>&lt;article&gt;</code> is self-contained content, and <code>&lt;aside&gt;</code> is a side note. Give sections a heading.</p>",
+                        codeBlock('<article>\n  <h2>Post title</h2>\n  <section><h3>Introduction</h3></section>\n</article>\n<aside>Related links</aside>')
+                    ]),
+                    t('details and summary', [
+                        "<p><code>&lt;details&gt;</code> creates a disclosure widget with a clickable <code>&lt;summary&gt;</code> - a native accordion with no JavaScript.</p>",
+                        codeBlock('<details>\n  <summary>What is HTML?</summary>\n  <p>A markup language for structuring pages.</p>\n</details>')
+                    ]),
+                    t('Nesting Rules and Document Outline', [
+                        "<p>Elements must be properly nested: close tags in the reverse order you opened them. Block elements should not sit inside inline ones.</p>",
+                        codeBlock('<p>Valid <em>nesting</em>.</p>\n<p>Open and close tags in reverse order.</p>')
+                    ])
+                ]},
+
+                { name: 'Module 8 · The Document Head', items: [
+                    t('The title Element', [
+                        "<p>The <code>&lt;title&gt;</code> shows in the browser tab and search results, and is read aloud by screen readers. Keep it short and descriptive.</p>",
+                        codeBlock('<title>Contact Us | Acme Store</title>')
+                    ]),
+                    t('meta charset and viewport', [
+                        "<p><code>charset=\"utf-8\"</code> makes text display correctly, and the viewport tag makes pages scale properly on phones.</p>",
+                        codeBlock('<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">')
+                    ]),
+                    t('meta description and Social Tags', [
+                        "<p>The <code>description</code> appears in search results. Open Graph tags control how links look when shared.</p>",
+                        codeBlock('<meta name="description" content="Learn HTML from scratch.">\n<meta property="og:title" content="HTML Course">\n<meta property="og:image" content="cover.jpg">')
+                    ]),
+                    t('Linking CSS, Icons and Fonts', [
+                        "<p><code>&lt;link&gt;</code> connects external resources: stylesheets, favicons and fonts.</p>",
+                        codeBlock('<link rel="stylesheet" href="style.css">\n<link rel="icon" href="favicon.ico">\n<link rel="preconnect" href="https://fonts.example">')
+                    ]),
+                    t('Scripts: defer and async', [
+                        "<p>Place scripts at the end of the body, or use <code>defer</code> (run after parsing, in order) and <code>async</code> (run as soon as ready).</p>",
+                        codeBlock('<script src="app.js" defer><\/script>\n<script src="analytics.js" async><\/script>')
+                    ])
+                ]},
+
+                { name: 'Module 9 · Accessibility', items: [
+                    t('Why Accessibility Matters', [
+                        "<p>Accessible HTML works for everyone: keyboard users, screen-reader users, and people on slow connections. Semantic HTML is the foundation.</p>",
+                        "<p>Accessibility is also a legal requirement in many places and improves search ranking.</p>"
+                    ]),
+                    t('Alternative Text for Images', [
+                        "<p>Write <code>alt</code> to convey the image meaning. Use an empty <code>alt=\"\"</code> only for purely decorative images so screen readers skip them.</p>",
+                        codeBlock('<img src="chart.png" alt="Revenue rose 20 percent in 2026">\n<img src="divider.png" alt="">')
+                    ]),
+                    t('Semantic HTML versus ARIA', [
+                        "<p>Prefer real elements over ARIA. The first rule of ARIA is not to use ARIA when a native element already does the job.</p>",
+                        codeBlock('<button aria-expanded="false">Menu</button>\n<nav aria-label="Main navigation">...</nav>')
+                    ]),
+                    t('Forms, Labels and Focus', [
+                        "<p>Label every field, group related controls, and keep a visible focus outline so keyboard users can see where they are.</p>",
+                        codeBlock('<label for="q">Search</label>\n<input id="q" name="q" type="search">')
+                    ]),
+                    t('Keyboard Navigation and Contrast', [
+                        "<p>Everything must be reachable with <code>Tab</code>. Keep text contrast high - roughly 4.5:1 for normal text.</p>",
+                        "<p>Test by unplugging your mouse: can you complete every task using only the keyboard?</p>"
+                    ])
+                ]},
+
+                { name: 'Module 10 · Best Practices and Modern HTML', items: [
+                    t('Character Entities and Symbols', [
+                        "<p>Entities write reserved characters safely: <code>&amp;lt;</code> for a less-than sign, <code>&amp;amp;</code> for an ampersand, <code>&amp;copy;</code> for the copyright symbol.</p>",
+                        codeBlock('<p>5 &lt; 10 &amp;&amp; 10 &gt; 5</p>\n<p>&copy; 2026 &middot; All rights reserved</p>')
+                    ]),
+                    t('Data Attributes (data-*)', [
+                        "<p>Custom <code>data-*</code> attributes store extra information on elements for CSS and JavaScript without inventing non-standard attributes.</p>",
+                        codeBlock('<button data-action="save" data-id="42">Save</button>')
+                    ]),
+                    t('Inline SVG Icons', [
+                        "<p>SVG scales without losing quality and can be styled with CSS. Inline SVG also animates and inherits <code>currentColor</code>.</p>",
+                        codeBlock('<svg viewBox="0 0 24 24" width="24" height="24">\n  <circle cx="12" cy="12" r="9"></circle>\n</svg>')
+                    ]),
+                    t('The canvas Element', [
+                        "<p><code>&lt;canvas&gt;</code> is a bitmap drawing surface controlled by JavaScript - ideal for charts, games and image editing.</p>",
+                        codeBlock('<canvas id="art" width="200" height="100"></canvas>\n<script>\n  var c = document.getElementById("art").getContext("2d");\n  c.fillStyle = "tomato";\n  c.fillRect(10, 10, 120, 60);\n<\/script>')
+                    ]),
+                    t('HTML5 APIs and Where to Go Next', [
+                        "<p>HTML works with browser APIs such as Geolocation, Local Storage, Drag and Drop, and the Audio/Video API.</p>",
+                        "<p>Once your structure is solid, move on to the <b>CSS Course</b> to style it and the <b>JavaScript Course</b> to make it interactive.</p>"
+                    ])
+                ]}
+            ]}
+        ];
+
+
+        /* ---------------- Flatten the course ---------------- */
+        var SECTIONS = [];
+        var TREE = COURSE.map(function (part, pi) {
+            return {
+                short: part.short,
+                name: part.name,
+                pi: pi,
+                modules: part.modules.map(function (mod, mi) {
+                    return {
+                        name: mod.name,
+                        mi: mi,
+                        items: mod.items.map(function (item) {
+                            var rec = {
+                                n: SECTIONS.length + 1,
+                                id: 't' + (SECTIONS.length + 1),
+                                title: item.title,
+                                body: item.body,
+                                pi: pi,
+                                mi: mi,
+                                part: part.short,
+                                partName: part.name,
+                                module: mod.name
+                            };
+                            SECTIONS.push(rec);
+                            return rec;
+                        })
+                    };
+                })
+            };
+        });
+
+        /* ---------------- State ---------------- */
+        var state = {
+            index: 0,
+            theme: localStorage.getItem('html-theme') || 'light',
+            visited: new Set(JSON.parse(localStorage.getItem('html-visited') || '[]')),
+            openParts: new Set()
+        };
+
+        state.visited = new Set(Array.from(state.visited).filter(function (id) {
+            return SECTIONS.some(function (s) { return s.id === id; });
+        }));
+
+        var saved = localStorage.getItem('html-active');
+        if (saved) {
+            var found = SECTIONS.findIndex(function (s) { return s.id === saved; });
+            if (found >= 0) state.index = found;
+        }
+        state.openParts.add(SECTIONS[state.index].pi);
+
+        /* ---------------- Elements ---------------- */
+        var navEl = document.getElementById('nav');
+        var docEl = document.getElementById('doc');
+        var crumbEl = document.getElementById('crumb');
+        var searchEl = document.getElementById('search');
+        var themeBtn = document.getElementById('theme-btn');
+
+        var ICONS = {
+            sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>',
+            moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>',
+            arrow: '<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"></path></svg>'
+        };
+
+        /* ---------------- Navigation tree ---------------- */
+        function renderNav(filter) {
+            filter = (filter || '').toLowerCase();
+            var html = '';
+
+            TREE.forEach(function (part) {
+                if (filter) {
+                    var any = part.modules.some(function (mod) {
+                        return mod.items.some(function (it) {
+                            return it.title.toLowerCase().indexOf(filter) > -1 ||
+                                mod.name.toLowerCase().indexOf(filter) > -1;
+                        });
+                    });
+                    if (!any) return;
+                }
+
+                var open = filter ? true : state.openParts.has(part.pi);
+                html += '<button class="part-head ' + (open ? 'open' : '') + '" onclick="togglePart(' + part.pi + ')">' +
+                    part.short + ' · ' + part.name + ICONS.arrow + '</button>';
+
+                if (!open) return;
+
+                part.modules.forEach(function (mod) {
+                    var items = mod.items.filter(function (it) {
+                        if (!filter) return true;
+                        return it.title.toLowerCase().indexOf(filter) > -1 ||
+                            mod.name.toLowerCase().indexOf(filter) > -1;
+                    });
+                    if (!items.length) return;
+
+                    html += '<div class="nav-group">' + mod.name + '</div>';
+                    items.forEach(function (it) {
+                        var cls = 'nav-item';
+                        if (it.n - 1 === state.index) cls += ' active';
+                        if (state.visited.has(it.id)) cls += ' done';
+                        html += '<button class="' + cls + '" onclick="go(' + (it.n - 1) + ')">' +
+                            '<span class="nav-num">' + it.n + '</span>' +
+                            '<span>' + it.title + '</span></button>';
+                    });
+                });
+            });
+
+            if (!html) html = '<div class="nav-group">No topics found</div>';
+            navEl.innerHTML = html;
+        }
+
+        function togglePart(pi) {
+            if (state.openParts.has(pi)) state.openParts.delete(pi);
+            else state.openParts.add(pi);
+            renderNav(searchEl.value);
+        }
+
+        function renderProgress() {
+            document.getElementById('progress-text').textContent = state.visited.size + ' of ' + SECTIONS.length;
+            document.getElementById('progress-bar').style.width = (state.visited.size / SECTIONS.length * 100) + '%';
+        }
+
+        function go(i) {
+            if (i < 0 || i >= SECTIONS.length) return;
+            state.index = i;
+            var s = SECTIONS[i];
+            state.visited.add(s.id);
+            state.openParts.add(s.pi);
+            localStorage.setItem('html-active', s.id);
+            localStorage.setItem('html-visited', JSON.stringify(Array.from(state.visited)));
+
+            crumbEl.textContent = s.part + ' · ' + s.title;
+            docEl.innerHTML = '<span class="tag">' + s.part + ' — ' + s.module + '</span>' + s.body +
+                '<div class="pager">' +
+                '<button ' + (i === 0 ? 'disabled' : '') + ' onclick="go(' + (i - 1) + ')">' +
+                '<small>Previous</small><b>' + (i > 0 ? SECTIONS[i - 1].title : 'Start') + '</b></button>' +
+                '<button class="next" ' + (i === SECTIONS.length - 1 ? 'disabled' : '') + ' onclick="go(' + (i + 1) + ')">' +
+                '<small>Next</small><b>' + (i < SECTIONS.length - 1 ? SECTIONS[i + 1].title : 'End') + '</b></button>' +
+                '</div>';
+
+            renderNav(searchEl.value);
+            renderProgress();
+            window.scrollTo(0, 0);
+            closeNav();
+        }
+
+        /* ---------------- Theme ---------------- */
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', state.theme);
+            themeBtn.innerHTML = state.theme === 'dark' ? ICONS.sun : ICONS.moon;
+            localStorage.setItem('html-theme', state.theme);
+        }
+
+        themeBtn.addEventListener('click', function () {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            applyTheme();
+        });
+
+        /* ---------------- Mobile nav ---------------- */
+        var menuBtn = document.getElementById('menu-btn');
+        var backdrop = document.getElementById('backdrop');
+        function closeNav() { document.body.classList.remove('nav-open'); }
+        menuBtn.addEventListener('click', function () { document.body.classList.toggle('nav-open'); });
+        backdrop.addEventListener('click', closeNav);
+
+        /* ---------------- Search & keyboard ---------------- */
+        searchEl.addEventListener('input', function () { renderNav(this.value); });
+
+        document.addEventListener('keydown', function (e) {
+            var tag = (e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea') return;
+            if (e.key === 'ArrowRight') go(state.index + 1);
+            if (e.key === 'ArrowLeft') go(state.index - 1);
+        });
+
+        /* ---------------- Init ---------------- */
+        document.getElementById('brand-sub').textContent = SECTIONS.length + ' lessons · ' + TREE.length + ' modules';
+        searchEl.placeholder = 'Search ' + SECTIONS.length + ' topics…';
+        applyTheme();
+        go(state.index);
+    </script>
+</body>
+</html>

@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Complete Course — Modern Edition</title>
+    <script>
+        (function () {
+            var t = localStorage.getItem('css-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --surface-2: #f1f5f9;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e4e9f2;
+            --primary: #6366f1;
+            --primary-2: #8b5cf6;
+            --primary-soft: rgba(99, 102, 241, .12);
+            --code-bg: #0f172a;
+            --code-head: rgba(148, 163, 184, .08);
+            --shadow: 0 18px 40px -22px rgba(15, 23, 42, .35);
+            --sidebar: #0f172a;
+            --sidebar-2: #1e293b;
+            --sidebar-text: #cbd5e1;
+            --ok: #10b981;
+        }
+
+        html[data-theme="dark"] {
+            --bg: #0b1120;
+            --surface: #0f172a;
+            --surface-2: #131c30;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --border: #1e293b;
+            --primary: #818cf8;
+            --primary-2: #a78bfa;
+            --primary-soft: rgba(129, 140, 248, .16);
+            --code-bg: #020617;
+            --sidebar: #0b1120;
+            --sidebar-2: #111c33;
+            --shadow: 0 18px 40px -22px rgba(0, 0, 0, .8);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: var(--primary); }
+
+        /* ---------- Sidebar ---------- */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            width: 320px;
+            background: linear-gradient(180deg, var(--sidebar), var(--sidebar-2));
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            z-index: 60;
+            transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .brand {
+            padding: 20px 22px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, .15);
+        }
+
+        .brand-logo {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: grid; place-items: center;
+            font-weight: 800; font-size: 18px; color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 8px 18px -6px rgba(99, 102, 241, .8);
+        }
+
+        .brand h1 { font-size: 15px; margin: 0; color: #fff; letter-spacing: .2px; }
+        .brand span { font-size: 12px; color: #94a3b8; }
+
+        .search {
+            padding: 14px 16px 6px;
+            position: relative;
+        }
+
+        .search input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, .22);
+            background: rgba(2, 6, 23, .45);
+            color: #e2e8f0;
+            font-size: 13.5px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .search input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .25);
+        }
+
+        .search svg {
+            position: absolute;
+            left: 28px; top: 50%;
+            transform: translateY(-38%);
+            width: 15px; height: 15px;
+            color: #64748b;
+        }
+
+        .nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #334155 transparent;
+        }
+
+        .nav::-webkit-scrollbar { width: 8px; }
+        .nav::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+
+        .part-head {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 11px 12px;
+            border: 0;
+            border-radius: 10px;
+            background: rgba(148, 163, 184, .08);
+            color: #e2e8f0;
+            font: inherit;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            text-align: left;
+            cursor: pointer;
+            transition: background .18s;
+        }
+
+        .part-head:hover { background: rgba(148, 163, 184, .16); }
+        .part-head .arrow { margin-left: auto; width: 14px; height: 14px; color: #94a3b8; transition: transform .2s; }
+        .part-head.open .arrow { transform: rotate(90deg); }
+
+        .nav-group {
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #7c8aa3;
+            font-weight: 700;
+            padding: 13px 12px 4px;
+            line-height: 1.4;
+        }
+
+        .nav-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px 8px 16px;
+            border: 0;
+            background: transparent;
+            color: var(--sidebar-text);
+            font: inherit;
+            font-size: 13.5px;
+            text-align: left;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background .18s, color .18s;
+        }
+
+        .nav-item:hover { background: rgba(148, 163, 184, .12); color: #fff; }
+        .nav-item .nav-num {
+            width: 26px; height: 22px; flex: none;
+            display: grid; place-items: center;
+            font-size: 10.5px; font-weight: 700;
+            border-radius: 6px;
+            background: rgba(148, 163, 184, .15);
+            color: #cbd5e1;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .9), rgba(139, 92, 246, .85));
+            color: #fff;
+            box-shadow: 0 10px 20px -12px rgba(99, 102, 241, .9);
+        }
+
+        .nav-item.active .nav-num { background: rgba(255, 255, 255, .22); color: #fff; }
+        .nav-item.done .nav-num { background: rgba(16, 185, 129, .2); color: #34d399; }
+        .nav-item.done.active .nav-num { background: rgba(255, 255, 255, .22); color: #fff; }
+
+        .sidebar-foot {
+            padding: 14px 18px 20px;
+            border-top: 1px solid rgba(148, 163, 184, .15);
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .track {
+            height: 7px;
+            border-radius: 99px;
+            background: rgba(148, 163, 184, .2);
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .track > i {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-2));
+            transition: width .4s ease;
+        }
+
+        /* ---------- Main ---------- */
+        .main {
+            margin-left: 320px;
+            min-height: 100vh;
+            padding: 26px 44px 90px;
+        }
+
+        .inner { max-width: 980px; margin: 0 auto; }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .crumb { font-size: 13px; color: var(--muted); flex: 1; }
+        .crumb b { color: var(--text); font-weight: 600; }
+
+        .icon-btn {
+            margin-left: auto;
+            width: 42px; height: 42px;
+            display: grid; place-items: center;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            transition: transform .18s, box-shadow .18s, border-color .18s;
+        }
+
+        .icon-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); border-color: var(--primary); }
+        .icon-btn svg { width: 19px; height: 19px; }
+
+        .menu-btn {
+            display: none;
+            width: 42px; height: 42px;
+            place-items: center;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .doc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 44px 46px 48px;
+            box-shadow: var(--shadow);
+            animation: rise .42s cubic-bezier(.2, .7, .2, 1);
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: var(--primary-soft);
+            padding: 5px 11px;
+            border-radius: 99px;
+            margin-bottom: 12px;
+        }
+
+        .doc h2 {
+            font-size: 1.9rem;
+            line-height: 1.2;
+            margin: 0 0 18px;
+            letter-spacing: -.02em;
+        }
+
+        .doc h3 {
+            font-size: 1.15rem;
+            margin: 28px 0 10px;
+            letter-spacing: -.01em;
+        }
+
+        .doc p { margin: 0 0 14px; color: var(--text); }
+
+        .doc ul { margin: 0 0 16px; padding-left: 22px; }
+        .doc li { margin: 6px 0; }
+
+        .doc p code, .doc li code, .doc td code {
+            font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+            font-size: .86em;
+            background: var(--primary-soft);
+            color: var(--primary);
+            padding: .12em .42em;
+            border-radius: 6px;
+        }
+
+        /* ---------- Code blocks ---------- */
+        .code {
+            margin: 18px 0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--code-bg);
+            border: 1px solid rgba(148, 163, 184, .16);
+            box-shadow: var(--shadow);
+        }
+
+        .code-head {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 14px;
+            background: var(--code-head);
+            border-bottom: 1px solid rgba(148, 163, 184, .12);
+        }
+
+        .dots { display: flex; gap: 6px; }
+        .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+        .dots i:nth-child(1) { background: #ff5f57; }
+        .dots i:nth-child(2) { background: #febc2e; }
+        .dots i:nth-child(3) { background: #28c840; }
+
+        .code-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-left: 8px;
+            letter-spacing: .03em;
+        }
+
+        .copy {
+            margin-left: auto;
+            border: 1px solid rgba(148, 163, 184, .28);
+            background: transparent;
+            color: #cbd5e1;
+            font: inherit;
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s, color .2s, border-color .2s;
+        }
+
+        .copy:hover { background: rgba(148, 163, 184, .16); }
+        .copy.ok { color: #34d399; border-color: #34d399; }
+
+        .code pre {
+            margin: 0;
+            padding: 18px 20px;
+            overflow: auto;
+            font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+            font-size: 13.5px;
+            line-height: 1.75;
+            color: #e2e8f0;
+            tab-size: 4;
+        }
+
+        .code pre code { background: none; color: inherit; padding: 0; }
+
+        .t-kw { color: #c792ea; }
+        .t-str { color: #c3e88d; }
+        .t-num { color: #f78c6c; }
+        .t-com { color: #5c6b8a; font-style: italic; }
+
+        /* ---------- Pager ---------- */
+        .pager {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 34px;
+            padding-top: 26px;
+            border-top: 1px solid var(--border);
+        }
+
+        .pager button {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 190px;
+            padding: 13px 18px;
+            border-radius: 13px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font: inherit;
+            cursor: pointer;
+            text-align: left;
+            transition: transform .18s, border-color .18s, box-shadow .18s;
+        }
+
+        .pager button.next { text-align: right; margin-left: auto; }
+        .pager button:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow); }
+        .pager button:disabled { opacity: .4; cursor: not-allowed; }
+        .pager small { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; }
+        .pager b { font-weight: 600; font-size: 14.5px; }
+
+        .backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, .55);
+            backdrop-filter: blur(2px);
+            z-index: 55;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); box-shadow: 0 0 60px rgba(0, 0, 0, .5); }
+            body.nav-open .sidebar { transform: none; }
+            body.nav-open .backdrop { display: block; }
+            .main { margin-left: 0; padding: 18px 18px 70px; }
+            .menu-btn { display: grid; }
+            .doc { padding: 28px 22px 32px; border-radius: 18px; }
+            .doc h2 { font-size: 1.55rem; }
+            .pager button { min-width: 0; flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">CSS</div>
+            <div>
+                <h1>CSS Complete Course</h1>
+                <span id="brand-sub">100 lessons · 16 modules</span>
+            </div>
+        </div>
+        <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input id="search" type="search" placeholder="Search 100 topics…" autocomplete="off">
+        </div>
+        <nav class="nav" id="nav"></nav>
+        <div class="sidebar-foot">
+            <div><strong id="progress-text">0 of 0</strong> topics explored</div>
+            <div class="track"><i id="progress-bar"></i></div>
+        </div>
+    </aside>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <main class="main">
+        <div class="inner">
+            <div class="topbar">
+                <button class="menu-btn icon-btn" id="menu-btn" aria-label="Menu" style="margin-left:0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <div class="crumb">Course &nbsp;/&nbsp; <b id="crumb">Loading…</b></div>
+                <a class="icon-btn" href="../index.html" aria-label="Back to home" title="Back to home" style="text-decoration:none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path>
+                    </svg>
+                </a>
+                <button class="icon-btn" id="theme-btn" aria-label="Toggle theme" title="Toggle theme"></button>
+            </div>
+
+            <article class="doc" id="doc"></article>
+        </div>
+    </main>
+
+    <script>
+        /* ---------------- Syntax highlighting ---------------- */
+        function esc(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        var LANG = {
+            re: /(\/\*[\s\S]*?\*\/)|("[^"]*"|'[^']*')|([a-z-]+(?=\s*:))|(\d+(?:\.\d+)?)/g
+        };
+
+        function highlight(src) {
+            return esc(src).replace(LANG.re, function (m, com, str, kw, num) {
+                if (com) return '<span class="t-com">' + com + '</span>';
+                if (str) return '<span class="t-str">' + str + '</span>';
+                if (kw) return '<span class="t-kw">' + kw + '</span>';
+                if (num) return '<span class="t-num">' + num + '</span>';
+                return m;
+            });
+        }
+
+        function codeBlock(src, label) {
+            var clean = src.replace(/^\n/, '').replace(/\n[ \t]*$/, '').replace(/\t/g, '    ');
+            return '<div class="code">' +
+                '<div class="code-head"><span class="dots"><i></i><i></i><i></i></span>' +
+                '<span class="code-label">' + (label || 'CSS') + '</span>' +
+                '<button class="copy" onclick="copyCode(this)">Copy</button></div>' +
+                '<pre><code>' + highlight(clean) + '</code></pre></div>';
+        }
+
+        function t(title, blocks) { return { title: title, body: blocks.join('') }; }
+
+        function copyCode(btn) {
+            var code = btn.closest('.code').querySelector('pre code');
+            var text = code.innerText;
+            var done = function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('ok');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1500);
+            };
+            if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done); }
+            else {
+                var r = document.createRange(); r.selectNode(code);
+                window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
+                document.execCommand('copy'); window.getSelection().removeAllRanges(); done();
+            }
+        }
+
+        /* ---------------- Course content ---------------- */
+        var COURSE = [
+            { short: 'Part 1', name: 'CSS Foundations', modules: [
+
+                { name: 'Module 1 · Getting Started', items: [
+                    t('What is CSS and How It Works', [
+                        "<p><b>CSS</b> (Cascading Style Sheets) controls how HTML looks. The browser loads your HTML, then applies matching rules from your stylesheets to compute a final style for each element.</p>",
+                        "<p>The word <i>cascading</i> describes how conflicting rules are resolved by origin, specificity and order.</p>",
+                        codeBlock('p {\n  color: darkslateblue;\n  font-size: 18px;\n}', 'CSS')
+                    ]),
+                    t('Three Ways to Add CSS', [
+                        "<p>You can style with <b>external</b> stylesheets (best), an <b>internal</b> <code>&lt;style&gt;</code> block, or <b>inline</b> <code>style</code> attributes.</p>",
+                        codeBlock('<link rel="stylesheet" href="style.css">\n\n<style>\n  body { margin: 0; }\n<\/style>\n\n<p style="color: tomato">Inline</p>')
+                    ]),
+                    t('Anatomy of a Rule', [
+                        "<p>A rule has a <b>selector</b>, then a block of <b>declarations</b>. Each declaration is a <b>property</b>, a colon, a <b>value</b>, and a semicolon.</p>",
+                        codeBlock('selector {\n  property: value;\n}\n\nh1 {\n  color: navy;\n  font-weight: 700;\n}')
+                    ]),
+                    t('Comments and Formatting', [
+                        "<p>Comments use <code>/* ... */</code> and can span multiple lines. Consistent indentation and one declaration per line keep stylesheets readable.</p>",
+                        codeBlock('/* Primary heading */\nh1 {\n  color: navy;\n}')
+                    ]),
+                    t('The Cascade and Inheritance', [
+                        "<p>When rules conflict, later rules and more specific selectors win. Many text properties (like <code>color</code> and <code>font-family</code>) are inherited by children.</p>",
+                        codeBlock('body { color: #222; }\np { color: red; }  /* red wins for paragraphs */')
+                    ])
+                ]},
+
+                { name: 'Module 2 · Selectors', items: [
+                    t('Type, Class and ID Selectors', [
+                        "<p><code>p</code> selects by element, <code>.card</code> by class (reusable), and <code>#logo</code> by id (unique). Prefer classes for styling.</p>",
+                        codeBlock('p { line-height: 1.6; }\n.card { padding: 16px; }\n#logo { width: 120px; }')
+                    ]),
+                    t('Grouping and Combinators', [
+                        "<p>Group selectors with commas. Combine them with a space (descendant), <code>&gt;</code> (direct child), <code>+</code> (next sibling) or <code>~</code> (any later sibling).</p>",
+                        codeBlock('h1, h2 { margin: 0; }\nnav a { color: white; }\nul > li { list-style: none; }\nh2 + p { margin-top: 4px; }')
+                    ]),
+                    t('Attribute Selectors', [
+                        "<p>Match elements by their attributes: <code>[disabled]</code>, <code>[type=\"email\"]</code>, or partial matches like <code>[href^=\"https\"]</code>.</p>",
+                        codeBlock('input[type="email"] { border-color: teal; }\na[href^="https"] { font-weight: 700; }')
+                    ]),
+                    t('Pseudo-classes', [
+                        "<p>Pseudo-classes target states: <code>:hover</code>, <code>:focus</code>, <code>:first-child</code>, <code>:nth-child(2n)</code>, <code>:not()</code>.</p>",
+                        codeBlock('a:hover { text-decoration: underline; }\nli:nth-child(odd) { background: #f4f6fb; }\ninput:focus { outline: 2px solid blue; }')
+                    ]),
+                    t('Pseudo-elements', [
+                        "<p>Pseudo-elements style parts of an element: <code>::before</code>, <code>::after</code>, <code>::first-line</code> and <code>::selection</code>.</p>",
+                        codeBlock('.note::before {\n  content: "Note: ";\n  font-weight: 700;\n}\n::selection { background: gold; }')
+                    ])
+                ]},
+
+                { name: 'Module 3 · Colors, Text and Backgrounds', items: [
+                    t('Color Formats', [
+                        "<p>Colors can be named (<code>tomato</code>), hex (<code>#ff6347</code>), <code>rgb()</code>, <code>hsl()</code>, or modern <code>hsl(9 100% 64% / 0.5)</code> with alpha.</p>",
+                        codeBlock('.a { color: #ff6347; }\n.b { color: rgb(255 99 71); }\n.c { color: hsl(9 100% 64%); }\n.d { color: #ff634780; }')
+                    ]),
+                    t('Text Properties', [
+                        "<p>Control text with <code>font-size</code>, <code>font-weight</code>, <code>line-height</code>, <code>letter-spacing</code>, <code>text-align</code> and <code>text-transform</code>.</p>",
+                        codeBlock('h2 {\n  font-size: 1.75rem;\n  line-height: 1.25;\n  letter-spacing: -0.02em;\n  text-align: center;\n}')
+                    ]),
+                    t('Fonts and Stacks', [
+                        "<p>Define a fallback stack ending with a generic family. System fonts load instantly and need no downloads.</p>",
+                        codeBlock('body {\n  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;\n}')
+                    ]),
+                    t('Backgrounds', [
+                        "<p>Backgrounds support color, image, repeat, position, size and attachment.</p>",
+                        codeBlock('.hero {\n  background-color: #0f172a;\n  background-image: url("pattern.png");\n  background-repeat: no-repeat;\n  background-position: center;\n  background-size: cover;\n}')
+                    ]),
+                    t('Gradients', [
+                        "<p>Gradients are images generated by CSS - no files needed.</p>",
+                        codeBlock('.btn {\n  background: linear-gradient(135deg, #6366f1, #8b5cf6);\n}\n.radial {\n  background: radial-gradient(circle, #fff, #ccc);\n}')
+                    ])
+                ]},
+
+                { name: 'Module 4 · The Box Model', items: [
+                    t('Content, Padding, Border and Margin', [
+                        "<p>Every element is a box: content, then padding (inside the border), a border, and margin (outside).</p>",
+                        codeBlock('.box {\n  padding: 16px;\n  border: 2px solid #333;\n  margin: 24px;\n}')
+                    ]),
+                    t('box-sizing: border-box', [
+                        "<p>By default width excludes padding and border. Setting <code>border-box</code> includes them, so widths behave predictably.</p>",
+                        codeBlock('*, *::before, *::after {\n  box-sizing: border-box;\n}')
+                    ]),
+                    t('Width, Height, Min and Max', [
+                        "<p>Use <code>width</code> and <code>height</code> with <code>min-</code> and <code>max-</code> limits to keep layouts flexible.</p>",
+                        codeBlock('.panel {\n  width: 100%;\n  max-width: 720px;\n  min-height: 200px;\n}')
+                    ]),
+                    t('Overflow', [
+                        "<p>Control what happens when content is larger than its box: <code>visible</code>, <code>hidden</code>, <code>scroll</code> or <code>auto</code>.</p>",
+                        codeBlock('.scroll {\n  max-height: 160px;\n  overflow: auto;\n}')
+                    ]),
+                    t('Margin Collapsing and Centering', [
+                        "<p>Vertical margins of adjacent blocks collapse to the larger value. To center a block, give it a width and <code>margin: 0 auto</code>.</p>",
+                        codeBlock('.center {\n  width: 320px;\n  margin: 0 auto;\n}')
+                    ])
+                ]},
+
+                { name: 'Module 5 · Display and Positioning', items: [
+                    t('display: block, inline, inline-block, none', [
+                        "<p>Block elements take a full line, inline elements flow with text, inline-block sits inline but honors width and height, and <code>none</code> removes the element entirely.</p>",
+                        codeBlock('.a { display: block; }\n.b { display: inline-block; }\n.hidden { display: none; }')
+                    ]),
+                    t('position: static and relative', [
+                        "<p><code>static</code> is the default flow. <code>relative</code> keeps its place but can be nudged with offsets and becomes a reference for children.</p>",
+                        codeBlock('.badge {\n  position: relative;\n  top: -2px;\n  left: 4px;\n}')
+                    ]),
+                    t('position: absolute and fixed', [
+                        "<p><code>absolute</code> positions against the nearest positioned ancestor; <code>fixed</code> pins to the viewport.</p>",
+                        codeBlock('.wrap { position: relative; }\n.badge {\n  position: absolute;\n  top: 8px; right: 8px;\n}\n.top { position: fixed; top: 0; }')
+                    ]),
+                    t('position: sticky and z-index', [
+                        "<p><code>sticky</code> behaves relative until a threshold, then sticks. <code>z-index</code> orders overlapping elements (needs a positioned element).</p>",
+                        codeBlock('header {\n  position: sticky;\n  top: 0;\n  z-index: 10;\n}')
+                    ]),
+                    t('float and clear', [
+                        "<p><code>float</code> is mostly historical but still used to wrap text around images. <code>clear</code> stops an element from sitting beside a float.</p>",
+                        codeBlock('img { float: right; margin: 0 0 8px 12px; }\n.footer { clear: both; }')
+                    ])
+                ]}
+            ]},
+
+            { short: 'Part 2', name: 'Layout, Motion and Modern CSS', modules: [
+
+                { name: 'Module 6 · Flexbox', items: [
+                    t('The Flex Container', [
+                        "<p>Set <code>display: flex</code> on a parent to lay its children out in a row by default.</p>",
+                        codeBlock('.row {\n  display: flex;\n  gap: 12px;\n}')
+                    ]),
+                    t('Justify Content (Main Axis)', [
+                        "<p><code>justify-content</code> distributes items along the main axis.</p>",
+                        codeBlock('.row {\n  display: flex;\n  justify-content: space-between;\n}')
+                    ]),
+                    t('Align Items (Cross Axis)', [
+                        "<p><code>align-items</code> aligns items on the cross axis; <code>align-self</code> overrides it per item.</p>",
+                        codeBlock('.row {\n  display: flex;\n  align-items: center;\n}\n.row .tall { align-self: flex-start; }')
+                    ]),
+                    t('flex-grow, flex-shrink and flex-basis', [
+                        "<p>The <code>flex</code> shorthand sets grow, shrink and basis. <code>flex: 1</code> makes items share space equally.</p>",
+                        codeBlock('.side { flex: 0 0 240px; }\n.main { flex: 1; }')
+                    ]),
+                    t('Wrapping and Common Patterns', [
+                        "<p>Enable <code>flex-wrap</code> so items flow onto new lines. This is the basis for toolbars and card rows.</p>",
+                        codeBlock('.cards {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 16px;\n}\n.cards > * { flex: 1 1 220px; }')
+                    ])
+                ]},
+
+                { name: 'Module 7 · Grid', items: [
+                    t('Grid Basics', [
+                        "<p><code>display: grid</code> with <code>grid-template-columns</code> creates columns. Items fill cells automatically.</p>",
+                        codeBlock('.grid {\n  display: grid;\n  grid-template-columns: 200px 200px;\n  gap: 16px;\n}')
+                    ]),
+                    t('fr Units and repeat()', [
+                        "<p>The <code>fr</code> unit divides free space. <code>repeat()</code> avoids repetition.</p>",
+                        codeBlock('.grid {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n}')
+                    ]),
+                    t('Placing Items by Line', [
+                        "<p>Place items with <code>grid-column</code> and <code>grid-row</code> using line numbers or spans.</p>",
+                        codeBlock('.hero {\n  grid-column: 1 / -1; /* whole row */\n}\n.logo { grid-column: span 2; }')
+                    ]),
+                    t('Grid Template Areas', [
+                        "<p>Name regions with <code>grid-template-areas</code> and assign them for very readable layouts.</p>",
+                        codeBlock('.page {\n  display: grid;\n  grid-template-areas:\n    "head head"\n    "nav main";\n  grid-template-columns: 200px 1fr;\n}\nheader { grid-area: head; }')
+                    ]),
+                    t('Responsive Grids with auto-fit and minmax', [
+                        "<p><code>auto-fit</code> with <code>minmax()</code> creates a grid that reflows without media queries.</p>",
+                        codeBlock('.cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  gap: 16px;\n}')
+                    ])
+                ]},
+
+                { name: 'Module 8 · Responsive Design', items: [
+                    t('Viewport and Mobile First', [
+                        "<p>Start with a one-column layout that works on phones, then add enhancements for larger screens.</p>",
+                        codeBlock('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
+                    ]),
+                    t('Media Queries', [
+                        "<p>Apply rules only when conditions match, using <code>min-width</code> for a mobile-first approach.</p>",
+                        codeBlock('.sidebar { display: none; }\n\n@media (min-width: 800px) {\n  .sidebar { display: block; }\n}')
+                    ]),
+                    t('Relative Units', [
+                        "<p>Prefer <code>rem</code> for type and spacing, <code>%</code> for widths, and the <code>vw</code> and <code>vh</code> units for viewport-relative sizing.</p>",
+                        codeBlock('html { font-size: 16px; }\nh1 { font-size: 2rem; }\n.hero { min-height: 60vh; }')
+                    ]),
+                    t('Fluid Type with clamp()', [
+                        "<p><code>clamp(min, preferred, max)</code> scales a value smoothly between bounds.</p>",
+                        codeBlock('h1 {\n  font-size: clamp(1.6rem, 4vw, 3rem);\n}')
+                    ]),
+                    t('Responsive Images and Container Queries', [
+                        "<p>Make images fluid with <code>max-width: 100%</code>. Container queries let a component respond to its own width.</p>",
+                        codeBlock('img { max-width: 100%; height: auto; }\n\n@container (min-width: 500px) {\n  .card { flex-direction: row; }\n}')
+                    ])
+                ]},
+
+                { name: 'Module 9 · Transitions, Transforms and Animation', items: [
+                    t('Transitions', [
+                        "<p>A transition animates a property change over time when a state changes, such as on hover.</p>",
+                        codeBlock('.btn {\n  background: #6366f1;\n  transition: background .25s ease;\n}\n.btn:hover { background: #8b5cf6; }')
+                    ]),
+                    t('Timing Functions and Delays', [
+                        "<p>Choose an easing with <code>ease</code>, <code>linear</code>, <code>ease-in-out</code> or <code>cubic-bezier()</code>, and offset it with <code>delay</code>.</p>",
+                        codeBlock('.card {\n  transition: transform .3s cubic-bezier(.2,.7,.2,1) .05s;\n}')
+                    ]),
+                    t('2D Transforms', [
+                        "<p>Move, scale, rotate and skew elements with <code>transform</code> - cheap to animate and layout-safe.</p>",
+                        codeBlock('.card:hover {\n  transform: translateY(-4px) scale(1.02);\n}')
+                    ]),
+                    t('3D Transforms and Perspective', [
+                        "<p>Add depth with <code>perspective</code> and <code>rotateY</code> for flip effects.</p>",
+                        codeBlock('.scene { perspective: 800px; }\n.flip { transition: transform .6s; }\n.card:hover .inner { transform: rotateY(180deg); }')
+                    ]),
+                    t('Keyframe Animations', [
+                        "<p>Define keyframes and run them with the <code>animation</code> shorthand.</p>",
+                        codeBlock('@keyframes float {\n  from { transform: translateY(0); }\n  to { transform: translateY(-10px); }\n}\n.badge { animation: pulse 1.4s infinite alternate; }')
+                    ])
+                ]},
+
+                { name: 'Module 10 · Variables and Modern CSS', items: [
+                    t('Custom Properties', [
+                        "<p>CSS variables start with <code>--</code> and are read with <code>var()</code>. They cascade and can be changed at runtime.</p>",
+                        codeBlock(':root {\n  --brand: #6366f1;\n}\n.btn { background: var(--primary, #6366f1); }')
+                    ]),
+                    t('Theming and Dark Mode', [
+                        "<p>Define variables once and switch them for a dark theme, either from a class or the OS preference.</p>",
+                        codeBlock(':root { --bg: #fff; --text: #111; }\n[data-theme="dark"] { --bg: #0b1120; --text: #e2e8f0; }\n\n@media (prefers-color-scheme: dark) {\n  :root { color-scheme: dark; }\n}')
+                    ]),
+                    t('Box Shadows and Borders', [
+                        "<p>Layered shadows and rounded corners add depth. <code>outline</code> and <code>border-radius</code> polish focus states.</p>",
+                        codeBlock('.card {\n  border-radius: 16px;\n  box-shadow: 0 18px 40px -22px rgba(15,23,42,.35);\n}\n:focus-visible { outline: 2px solid #6366f1; }')
+                    ]),
+                    t('Generated Content with ::before and ::after', [
+                        "<p>Add decorative content with <code>content</code> in pseudo-elements - useful for icons, badges and quotes.</p>",
+                        codeBlock('.quote::before {\n  content: "\\201C";\n  font-size: 2rem;\n  color: #999;\n}')
+                    ]),
+                    t('Modern Features and Best Practices', [
+                        "<p>Round out your toolkit with CSS custom properties, <code>aspect-ratio</code>, <code>gap</code>, logical properties and <code>color-mix()</code>.</p>",
+                        "<p>Keep selectors short, avoid <code>!important</code>, and design mobile-first. Next, use your skills in the <b>Mini Projects</b>.</p>",
+                        codeBlock('.thumb {\n  aspect-ratio: 16 / 9;\n  background: color-mix(in srgb, #6366f1 20%, white);\n}')
+                    ])
+                ]}
+            ]}
+        ];
+
+
+        /* ---------------- Flatten the course ---------------- */
+        var SECTIONS = [];
+        var TREE = COURSE.map(function (part, pi) {
+            return {
+                short: part.short,
+                name: part.name,
+                pi: pi,
+                modules: part.modules.map(function (mod, mi) {
+                    return {
+                        name: mod.name,
+                        mi: mi,
+                        items: mod.items.map(function (item) {
+                            var rec = {
+                                n: SECTIONS.length + 1,
+                                id: 't' + (SECTIONS.length + 1),
+                                title: item.title,
+                                body: item.body,
+                                pi: pi,
+                                mi: mi,
+                                part: part.short,
+                                partName: part.name,
+                                module: mod.name
+                            };
+                            SECTIONS.push(rec);
+                            return rec;
+                        })
+                    };
+                })
+            };
+        });
+
+        /* ---------------- State ---------------- */
+        var state = {
+            index: 0,
+            theme: localStorage.getItem('css-theme') || 'light',
+            visited: new Set(JSON.parse(localStorage.getItem('css-visited') || '[]')),
+            openParts: new Set()
+        };
+
+        state.visited = new Set(Array.from(state.visited).filter(function (id) {
+            return SECTIONS.some(function (s) { return s.id === id; });
+        }));
+
+        var saved = localStorage.getItem('css-active');
+        if (saved) {
+            var found = SECTIONS.findIndex(function (s) { return s.id === saved; });
+            if (found >= 0) state.index = found;
+        }
+        state.openParts.add(SECTIONS[state.index].pi);
+
+        /* ---------------- Elements ---------------- */
+        var navEl = document.getElementById('nav');
+        var docEl = document.getElementById('doc');
+        var crumbEl = document.getElementById('crumb');
+        var searchEl = document.getElementById('search');
+        var themeBtn = document.getElementById('theme-btn');
+
+        var ICONS = {
+            sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>',
+            moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>',
+            arrow: '<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"></path></svg>'
+        };
+
+        /* ---------------- Navigation tree ---------------- */
+        function renderNav(filter) {
+            filter = (filter || '').toLowerCase();
+            var html = '';
+
+            TREE.forEach(function (part) {
+                if (filter) {
+                    var any = part.modules.some(function (mod) {
+                        return mod.items.some(function (it) {
+                            return it.title.toLowerCase().indexOf(filter) > -1 ||
+                                mod.name.toLowerCase().indexOf(filter) > -1;
+                        });
+                    });
+                    if (!any) return;
+                }
+
+                var open = filter ? true : state.openParts.has(part.pi);
+                html += '<button class="part-head ' + (open ? 'open' : '') + '" onclick="togglePart(' + part.pi + ')">' +
+                    part.short + ' · ' + part.name + ICONS.arrow + '</button>';
+
+                if (!open) return;
+
+                part.modules.forEach(function (mod) {
+                    var items = mod.items.filter(function (it) {
+                        if (!filter) return true;
+                        return it.title.toLowerCase().indexOf(filter) > -1 ||
+                            mod.name.toLowerCase().indexOf(filter) > -1;
+                    });
+                    if (!items.length) return;
+
+                    html += '<div class="nav-group">' + mod.name + '</div>';
+                    items.forEach(function (it) {
+                        var cls = 'nav-item';
+                        if (it.n - 1 === state.index) cls += ' active';
+                        if (state.visited.has(it.id)) cls += ' done';
+                        html += '<button class="' + cls + '" onclick="go(' + (it.n - 1) + ')">' +
+                            '<span class="nav-num">' + it.n + '</span>' +
+                            '<span>' + it.title + '</span></button>';
+                    });
+                });
+            });
+
+            if (!html) html = '<div class="nav-group">No topics found</div>';
+            navEl.innerHTML = html;
+        }
+
+        function togglePart(pi) {
+            if (state.openParts.has(pi)) state.openParts.delete(pi);
+            else state.openParts.add(pi);
+            renderNav(searchEl.value);
+        }
+
+        function renderProgress() {
+            document.getElementById('progress-text').textContent = state.visited.size + ' of ' + SECTIONS.length;
+            document.getElementById('progress-bar').style.width = (state.visited.size / SECTIONS.length * 100) + '%';
+        }
+
+        function go(i) {
+            if (i < 0 || i >= SECTIONS.length) return;
+            state.index = i;
+            var s = SECTIONS[i];
+            state.visited.add(s.id);
+            state.openParts.add(s.pi);
+            localStorage.setItem('css-active', s.id);
+            localStorage.setItem('css-visited', JSON.stringify(Array.from(state.visited)));
+
+            crumbEl.textContent = s.part + ' · ' + s.title;
+            docEl.innerHTML = '<span class="tag">' + s.part + ' — ' + s.module + '</span>' + s.body +
+                '<div class="pager">' +
+                '<button ' + (i === 0 ? 'disabled' : '') + ' onclick="go(' + (i - 1) + ')">' +
+                '<small>Previous</small><b>' + (i > 0 ? SECTIONS[i - 1].title : 'Start') + '</b></button>' +
+                '<button class="next" ' + (i === SECTIONS.length - 1 ? 'disabled' : '') + ' onclick="go(' + (i + 1) + ')">' +
+                '<small>Next</small><b>' + (i < SECTIONS.length - 1 ? SECTIONS[i + 1].title : 'End') + '</b></button>' +
+                '</div>';
+
+            renderNav(searchEl.value);
+            renderProgress();
+            window.scrollTo(0, 0);
+            closeNav();
+        }
+
+        /* ---------------- Theme ---------------- */
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', state.theme);
+            themeBtn.innerHTML = state.theme === 'dark' ? ICONS.sun : ICONS.moon;
+            localStorage.setItem('css-theme', state.theme);
+        }
+
+        themeBtn.addEventListener('click', function () {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            applyTheme();
+        });
+
+        /* ---------------- Mobile nav ---------------- */
+        var menuBtn = document.getElementById('menu-btn');
+        var backdrop = document.getElementById('backdrop');
+        function closeNav() { document.body.classList.remove('nav-open'); }
+        menuBtn.addEventListener('click', function () { document.body.classList.toggle('nav-open'); });
+        backdrop.addEventListener('click', closeNav);
+
+        /* ---------------- Search & keyboard ---------------- */
+        searchEl.addEventListener('input', function () { renderNav(this.value); });
+
+        document.addEventListener('keydown', function (e) {
+            var tag = (e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea') return;
+            if (e.key === 'ArrowRight') go(state.index + 1);
+            if (e.key === 'ArrowLeft') go(state.index - 1);
+        });
+
+        /* ---------------- Init ---------------- */
+        document.getElementById('brand-sub').textContent = SECTIONS.length + ' lessons · ' + TREE.length + ' modules';
+        searchEl.placeholder = 'Search ' + SECTIONS.length + ' topics…';
+        applyTheme();
+        go(state.index);
+    </script>
+</body>
+</html>

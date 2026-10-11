@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>50 JavaScript Mini Projects</title>
+    <script>
+        (function () {
+            var t = localStorage.getItem('mp-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --surface-2: #f1f5f9;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e4e9f2;
+            --primary: #6366f1;
+            --primary-2: #8b5cf6;
+            --primary-soft: rgba(99, 102, 241, .12);
+            --primary-grad: linear-gradient(135deg, #6366f1, #8b5cf6);
+            --shadow: 0 18px 40px -22px rgba(15, 23, 42, .35);
+            --shadow-sm: 0 8px 22px -16px rgba(15, 23, 42, .45);
+            --ok: #10b981;
+            --ok-soft: rgba(16, 185, 129, .14);
+            --warn: #f59e0b;
+            --warn-soft: rgba(245, 158, 11, .16);
+            --danger: #ef4444;
+            --danger-soft: rgba(239, 68, 68, .14);
+            --radius-sm: 10px;
+            --radius: 14px;
+            --radius-lg: 20px;
+        }
+
+        html[data-theme="dark"] {
+            --bg: #0b1120;
+            --surface: #0f172a;
+            --surface-2: #131c30;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --border: #1e293b;
+            --primary: #818cf8;
+            --primary-2: #a78bfa;
+            --primary-soft: rgba(129, 140, 248, .16);
+            --primary-grad: linear-gradient(135deg, #818cf8, #a78bfa);
+            --shadow: 0 18px 40px -22px rgba(0, 0, 0, .8);
+            --shadow-sm: 0 8px 22px -16px rgba(0, 0, 0, .85);
+            --ok: #34d399;
+            --ok-soft: rgba(52, 211, 153, .16);
+            --warn: #fbbf24;
+            --warn-soft: rgba(251, 191, 36, .16);
+            --danger: #f87171;
+            --danger-soft: rgba(248, 113, 113, .16);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .top {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: color-mix(in srgb, var(--bg) 85%, transparent);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bar { max-width: 1120px; margin: 0 auto; padding: 16px 22px; display: flex; align-items: center; gap: 14px; }
+        .logo {
+            width: 42px; height: 42px; border-radius: 13px; flex: none;
+            display: grid; place-items: center; color: #fff; font-weight: 800;
+            font-size: 13px; letter-spacing: .5px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 8px 18px -6px rgba(99, 102, 241, .8);
+        }
+        .bar h1 { font-size: 17px; margin: 0; letter-spacing: -.01em; }
+        .bar .sub { font-size: 12px; color: var(--muted); margin: 0; }
+        .spacer { flex: 1; }
+
+        .icon-btn {
+            width: 42px; height: 42px; display: grid; place-items: center;
+            border-radius: 12px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--text); cursor: pointer;
+            transition: transform .18s, box-shadow .18s, border-color .18s;
+        }
+        .icon-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); border-color: var(--primary); }
+        .icon-btn svg { width: 19px; height: 19px; }
+
+        .wrap { max-width: 1120px; margin: 0 auto; padding: 26px 22px 90px; }
+
+        .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+        .search { position: relative; flex: 1; min-width: 220px; }
+        .search input {
+            width: 100%; padding: 12px 14px 12px 40px; border-radius: 12px;
+            border: 1px solid var(--border); background: var(--surface);
+            color: var(--text); font: inherit; font-size: 14px; outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .search input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+        .search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted); }
+
+        .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip {
+            padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--muted); font: inherit;
+            font-size: 13px; font-weight: 600; cursor: pointer; transition: .18s;
+        }
+        .chip:hover { border-color: var(--primary); color: var(--text); }
+        .chip.active { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border-color: transparent; }
+
+        .status { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+        .status b { color: var(--text); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+
+        .card {
+            display: flex; flex-direction: column; gap: 10px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 18px; box-shadow: var(--shadow);
+            transition: transform .18s, border-color .18s, box-shadow .18s;
+            animation: rise .35s cubic-bezier(.2, .7, .2, 1);
+        }
+        .card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 24px 46px -26px rgba(15, 23, 42, .5); }
+        @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card-top { display: flex; align-items: center; gap: 10px; }
+        .card-num {
+            width: 30px; height: 30px; flex: none; display: grid; place-items: center;
+            border-radius: 9px; font-size: 12px; font-weight: 800;
+            color: var(--primary); background: var(--primary-soft);
+        }
+        .card h3 { margin: 0; font-size: 15.5px; letter-spacing: -.01em; }
+        .card p { margin: 0; font-size: 13px; color: var(--muted); flex: 1; }
+
+        .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+
+        .open-btn {
+            border: 0; border-radius: 11px; padding: 11px 14px; font: inherit;
+            font-weight: 700; font-size: 13.5px; color: #fff; cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            transition: transform .18s, box-shadow .18s;
+        }
+        .open-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 24px -12px rgba(99, 102, 241, .9); }
+
+        .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 48px 0; }
+
+        /* ---------- Modal ---------- */
+        .modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px; }
+        .modal[hidden] { display: none; }
+        .modal-backdrop { position: absolute; inset: 0; background: rgba(2, 6, 23, .6); backdrop-filter: blur(3px); }
+        .modal-panel {
+            position: relative; width: min(680px, 100%); max-height: 88vh;
+            display: flex; flex-direction: column; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 20px;
+            box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .6); overflow: hidden;
+            animation: pop .28s cubic-bezier(.2, .8, .2, 1);
+        }
+        @keyframes pop { from { opacity: 0; transform: scale(.96) translateY(8px); } to { opacity: 1; transform: none; } }
+        .modal-head { display: flex; align-items: flex-start; gap: 14px; padding: 20px 22px; border-bottom: 1px solid var(--border); }
+        .modal-head h3 { margin: 0 0 3px; font-size: 18px; }
+        .modal-head p { margin: 0; font-size: 13px; color: var(--muted); }
+        .modal-body { padding: 22px; overflow: auto; }
+
+        /* ---------- Shared design system used by project files ---------- */
+        .mp { font-size: 14px; color: var(--text); line-height: 1.6; }
+        .mp *, .mp *::before, .mp *::after { box-sizing: border-box; }
+        .mp h3, .mp h4 { margin: 0 0 8px; letter-spacing: -.01em; }
+        .mp p { margin: 0 0 10px; color: var(--muted); font-size: 13.5px; }
+
+        /* layout */
+        .mp-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .mp-between { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+        .mp-stack { display: flex; flex-direction: column; gap: 10px; }
+        .mp-grid { display: grid; gap: 10px; }
+        .mp-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .mp-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .mp-center { display: grid; place-items: center; }
+        .mp-hr { height: 1px; border: 0; background: var(--border); margin: 14px 0; }
+        .mp-full { width: 100%; }
+
+        /* surfaces */
+        .mp-card {
+            padding: 16px; border-radius: var(--radius);
+            background: var(--surface); border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+        .mp-panel {
+            padding: 14px; border-radius: var(--radius);
+            background: var(--surface-2); border: 1px solid var(--border);
+        }
+        .mp-out {
+            margin-top: 12px; padding: 14px 16px; border-radius: var(--radius);
+            background: var(--surface-2); border: 1px solid var(--border);
+            font-size: 14.5px; line-height: 1.6; word-break: break-word;
+        }
+
+        /* type */
+        .mp-title { font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+        .mp-sub { font-size: 13px; color: var(--muted); }
+        .mp-muted { color: var(--muted); }
+        .mp-label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+
+        /* forms */
+        .mp-input, .mp-select, .mp-textarea {
+            padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--text); font: inherit;
+            font-size: 14px; outline: none; min-width: 0;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .mp-input:focus, .mp-select:focus, .mp-textarea:focus {
+            border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft);
+        }
+        .mp-textarea { resize: vertical; min-height: 90px; }
+        .mp-range { width: 100%; accent-color: var(--primary); cursor: pointer; }
+
+        /* buttons */
+        .mp-btn {
+            padding: 10px 16px; border-radius: 10px; border: 1px solid transparent;
+            font: inherit; font-weight: 700; font-size: 13.5px; color: #fff;
+            background: var(--primary-grad);
+            cursor: pointer; transition: transform .16s, box-shadow .16s;
+        }
+        .mp-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px -12px rgba(99, 102, 241, .9); }
+        .mp-btn:active { transform: translateY(0); }
+        .mp-btn.alt { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+        .mp-btn.alt:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+        .mp-btn.ghost { background: transparent; color: var(--muted); border-color: transparent; }
+        .mp-btn.ghost:hover { color: var(--primary); box-shadow: none; }
+        .mp-btn.sm { padding: 7px 12px; font-size: 12.5px; border-radius: 9px; }
+        .mp-btn.lg { padding: 13px 20px; font-size: 15px; }
+        .mp-btn.block { width: 100%; }
+        .mp-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .mp-icon-btn {
+            width: 38px; height: 38px; flex: none; display: grid; place-items: center;
+            border-radius: 10px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--text); cursor: pointer;
+            font: inherit; transition: transform .16s, border-color .16s, color .16s;
+        }
+        .mp-icon-btn:hover { transform: translateY(-1px); border-color: var(--primary); color: var(--primary); }
+
+        /* chips + badges */
+        .mp-chip { display: inline-block; padding: 4px 10px; border-radius: 99px; background: var(--primary-soft); color: var(--primary); font-size: 12px; font-weight: 700; }
+        .mp-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 700; background: var(--primary-soft); color: var(--primary); }
+        .mp-badge.ok { background: var(--ok-soft); color: var(--ok); }
+        .mp-badge.warn { background: var(--warn-soft); color: var(--warn); }
+        .mp-badge.err { background: var(--danger-soft); color: var(--danger); }
+
+        /* stats + progress */
+        .mp-stat { text-align: center; padding: 14px 12px; border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--border); }
+        .mp-stat b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+        .mp-stat span { font-size: 12px; color: var(--muted); }
+        .mp-progress { height: 8px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
+        .mp-progress > i { display: block; height: 100%; width: 0; border-radius: 99px; background: var(--primary-grad); transition: width .3s ease; }
+
+        @media (max-width: 560px) {
+            .mp-grid-3, .mp-grid-2 { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 720px) {
+            .bar .sub { display: none; }
+            .bar h1 { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top">
+        <div class="bar">
+            <div class="logo">50</div>
+            <div>
+                <h1>JavaScript Mini Projects</h1>
+                <p class="sub">Each project is powered by its own file in <code>projects/</code>.</p>
+            </div>
+            <div class="spacer"></div>
+            <a class="icon-btn" href="../index.html" aria-label="Back to home" title="Back to home" style="text-decoration:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path>
+                </svg>
+            </a>
+            <button class="icon-btn" id="theme-btn" aria-label="Toggle theme" title="Toggle theme"></button>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <div class="toolbar">
+            <div class="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                <input id="search" type="search" placeholder="Search projects…" autocomplete="off">
+            </div>
+            <div class="filters" id="filters"></div>
+        </div>
+        <div class="status" id="status">Loading projects…</div>
+        <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="modal" id="modal" hidden>
+        <div class="modal-backdrop"></div>
+        <div class="modal-panel" role="dialog" aria-modal="true">
+            <div class="modal-head">
+                <div class="spacer">
+                    <h3 id="m-title">Project</h3>
+                    <p id="m-desc"></p>
+                </div>
+                <button class="icon-btn" id="m-close" aria-label="Close">✕</button>
+            </div>
+            <div class="modal-body" id="m-root"></div>
+        </div>
+    </div>
+
+    <script>
+        /* ==================================================================
+           Mini-project hub
+           Each file in ./projects/ calls registerProject({...}) exactly once.
+           The registration id MUST equal the file name without ".js".
+        ================================================================== */
+        var PROJECT_FILES = [
+            'calculator.js', 'todolist.js', 'digitalclock.js', 'stopwatch.js', 'countdowntimer.js',
+            'tipcalculator.js', 'bmicalculator.js', 'agecalculator.js', 'temperatureconverter.js', 'unitconverter.js',
+            'simpleinterest.js', 'percentagecalculator.js', 'passwordgenerator.js', 'wordcounter.js', 'charcounter.js',
+            'randomnumber.js', 'leapyear.js', 'palindrome.js', 'anagram.js', 'vowelcounter.js',
+            'reversestring.js', 'typingspeed.js', 'fizzbuzz.js', 'fibonacci.js', 'primechecker.js',
+            'factorial.js', 'multiplicationtable.js', 'randomquote.js', 'guessinggame.js', 'rockpaperscissors.js',
+            'diceroller.js', 'coinflip.js', 'tictactoe.js', 'memorygame.js', 'whackamole.js',
+            'simonsays.js', 'accordion.js', 'tabs.js', 'modaldialog.js', 'starrating.js',
+            'progressbar.js', 'toast.js', 'imageslider.js', 'notesapp.js', 'expensetracker.js',
+            'quizapp.js', 'flashcards.js', 'gradientgenerator.js', 'colorpalette.js', 'drawingboard.js'
+        ];
+
+        var registry = {};
+        function registerProject(project) { registry[project.id] = project; }
+
+        var PROJECTS = [];
+        var missing = [];
+        var selectedTag = 'All';
+
+        function loadProject(file) {
+            return new Promise(function (resolve) {
+                var s = document.createElement('script');
+                s.src = 'projects/' + file;
+                s.onload = function () { resolve(true); };
+                s.onerror = function () { missing.push(file); resolve(false); };
+                document.head.appendChild(s);
+            });
+        }
+
+        function esc(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function renderFilters() {
+            var tags = ['All'];
+            PROJECTS.forEach(function (p) {
+                p.tags.forEach(function (t) { if (tags.indexOf(t) === -1) tags.push(t); });
+            });
+            document.getElementById('filters').innerHTML = tags.map(function (t) {
+                return '<button class="chip' + (t === selectedTag ? ' active' : '') + '" data-tag="' + esc(t) + '">' + esc(t) + '</button>';
+            }).join('');
+        }
+
+        function renderGrid() {
+            var q = document.getElementById('search').value.trim().toLowerCase();
+            var list = PROJECTS.filter(function (p) {
+                var byTag = selectedTag === 'All' || p.tags.indexOf(selectedTag) !== -1;
+                var haystack = (p.title + ' ' + p.desc + ' ' + p.tags.join(' ')).toLowerCase();
+                return byTag && (!q || haystack.indexOf(q) !== -1);
+            });
+
+            if (!list.length) {
+                document.getElementById('grid').innerHTML = '<div class="status" style="grid-column:1/-1">No projects match your search.</div>';
+                return;
+            }
+
+            document.getElementById('grid').innerHTML = list.map(function (p) {
+                var num = PROJECTS.indexOf(p) + 1;
+                var tags = p.tags.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('');
+                return '<article class="card">' +
+                    '<div class="card-top"><span class="card-num">' + num + '</span><h3>' + esc(p.title) + '</h3></div>' +
+                    '<p>' + esc(p.desc) + '</p>' +
+                    '<div class="card-tags">' + tags + '</div>' +
+                    '<button class="open-btn" data-open="' + p.id + '">Open project →</button>' +
+                    '</article>';
+            }).join('');
+        }
+
+        /* ---------------- Modal ---------------- */
+        var cleanupFn = null;
+
+        function openModal(id) {
+            var p = registry[id];
+            if (!p) return;
+            closeModal();
+
+            document.getElementById('m-title').textContent = p.title;
+            document.getElementById('m-desc').textContent = p.desc;
+            var root = document.getElementById('m-root');
+            root.innerHTML = p.markup;
+
+            document.getElementById('modal').hidden = false;
+            document.body.style.overflow = 'hidden';
+
+            var el = document.getElementById('mp-' + p.id);
+
+            try {
+                cleanupFn = (typeof p.init === 'function') ? p.init(el) : null;
+            } catch (err) {
+                root.innerHTML = '<div class="mp-out" style="color:var(--danger)">Error: ' + esc(err.message) + '</div>';
+                console.error(err);
+            }
+        }
+
+        function closeModal() {
+            if (typeof cleanupFn === 'function') {
+                try { cleanupFn(); } catch (e) { /* ignore */ }
+            }
+            cleanupFn = null;
+            document.getElementById('m-root').innerHTML = '';
+            document.getElementById('modal').hidden = true;
+            document.body.style.overflow = '';
+        }
+
+        /* ---------------- Events ---------------- */
+        document.getElementById('grid').addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-open]');
+            if (btn) openModal(btn.getAttribute('data-open'));
+        });
+
+        document.getElementById('filters').addEventListener('click', function (e) {
+            var chip = e.target.closest('.chip');
+            if (!chip) return;
+            selectedTag = chip.getAttribute('data-tag');
+            renderFilters();
+            renderGrid();
+        });
+
+        document.getElementById('search').addEventListener('input', renderGrid);
+        document.getElementById('m-close').addEventListener('click', closeModal);
+        document.querySelector('.modal-backdrop').addEventListener('click', closeModal);
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+        /* ---------------- Theme ---------------- */
+        var ICONS = {
+            sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>',
+            moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>'
+        };
+        var theme = localStorage.getItem('mp-theme') || 'light';
+        var themeBtn = document.getElementById('theme-btn');
+
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', theme);
+            themeBtn.innerHTML = theme === 'dark' ? ICONS.sun : ICONS.moon;
+            localStorage.setItem('mp-theme', theme);
+        }
+        themeBtn.addEventListener('click', function () {
+            theme = theme === 'dark' ? 'light' : 'dark';
+            applyTheme();
+        });
+
+        /* ---------------- Boot ---------------- */
+        applyTheme();
+        Promise.all(PROJECT_FILES.map(loadProject)).then(function () {
+            PROJECTS = PROJECT_FILES
+                .map(function (f) { return registry[f.replace(/\.js$/, '')]; })
+                .filter(Boolean);
+            document.getElementById('status').innerHTML = '<b>' + PROJECTS.length + '</b> projects ready' +
+                (missing.length ? ' · failed: ' + esc(missing.join(', ')) : '');
+            renderFilters();
+            renderGrid();
+        });
+    </script>
+</body>
+</html>

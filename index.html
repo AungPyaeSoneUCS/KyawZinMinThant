@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn JavaScript by building — a full course plus 50 hands-on browser projects.">
+    <title>JS Learning Hub</title>
+    <script>
+        (function () {
+            var t = localStorage.getItem('mp-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <header class="top">
+        <div class="bar">
+            <div class="logo">JS</div>
+            <div>
+                <h1>JS Learning Hub</h1>
+                <p class="sub">Course &amp; projects for the web</p>
+            </div>
+            <span class="spacer"></span>
+            <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle dark mode" title="Toggle theme">
+                <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <section class="hero">
+            <span class="eyebrow">Open source &middot; Offline &middot; No build tools</span>
+            <h2>Learn JavaScript <span class="grad">by building</span></h2>
+            <p class="lead">Three complete courses &mdash; JavaScript, HTML and CSS &mdash; paired with fifty interactive browser projects. Everything runs straight from a file, with no installs or dependencies.</p>
+            <div class="cta">
+                <a class="btn primary" href="JS/index.html">Start with JavaScript</a>
+                <a class="btn ghost" href="JS/JavascriptMiniProject.html">Browse projects</a>
+            </div>
+            <ul class="stats">
+                <li><b>200</b><span>Lessons</span></li>
+                <li><b>50</b><span>Projects</span></li>
+                <li><b>0</b><span>Dependencies</span></li>
+            </ul>
+        </section>
+
+        <section class="toolbar">
+            <label class="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                <input id="search" type="search" placeholder="Search sections&hellip;  (press /)" aria-label="Search sections" autocomplete="off">
+            </label>
+            <span class="count" id="count"></span>
+        </section>
+
+        <section class="grid" id="grid"></section>
+
+        <section class="empty" id="empty" hidden>No sections match your search.</section>
+    </main>
+
+    <footer class="foot">
+        <p>Built for learning — add new pages to <code>main.js</code> and they appear here automatically.</p>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>

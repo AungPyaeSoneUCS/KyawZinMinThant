@@ -245,7 +245,7 @@
             margin-bottom: 22px;
         }
 
-        .crumb { font-size: 13px; color: var(--muted); }
+        .crumb { font-size: 13px; color: var(--muted); flex: 1; }
         .crumb b { color: var(--text); font-weight: 600; }
 
         .icon-btn {
@@ -455,7 +455,7 @@
             <div class="brand-logo">JS</div>
             <div>
                 <h1>JavaScript Complete Course</h1>
-                <span>100 lessons · 16 modules</span>
+                <span id="brand-sub">100 lessons · 16 modules</span>
             </div>
         </div>
         <div class="search">
@@ -483,6 +483,11 @@
                     </svg>
                 </button>
                 <div class="crumb">Course &nbsp;/&nbsp; <b id="crumb">Loading…</b></div>
+                <a class="icon-btn" href="../index.html" aria-label="Back to home" title="Back to home" style="text-decoration:none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><path d="M9.5 21v-6h5v6"></path>
+                    </svg>
+                </a>
                 <button class="icon-btn" id="theme-btn" aria-label="Toggle theme" title="Toggle theme"></button>
             </div>
 
@@ -496,9 +501,12 @@
             return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
+        var LANG = {
+            re: /*LANGRE*/ /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(`[^`]*`|'[^']*'|"[^"]*")|\b(const|let|var|function|return|if|else|for|while|do|of|in|new|class|constructor|this|typeof|instanceof|null|undefined|true|false|async|await|try|catch|finally|throw|switch|case|break|continue|default|extends|super|static|get|set|export|import|from|yield)\b|\b(\d+(?:\.\d+)?)\b/g
+        };
+
         function highlight(src) {
-            var re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(`[^`]*`|'[^']*'|"[^"]*")|\b(const|let|var|function|return|if|else|for|while|do|of|in|new|class|constructor|this|typeof|instanceof|null|undefined|true|false|async|await|try|catch|finally|throw|switch|case|break|continue|default|extends|super|static|get|set|export|import|from|yield)\b|\b(\d+(?:\.\d+)?)\b/g;
-            return esc(src).replace(re, function (m, com, str, kw, num) {
+            return esc(src).replace(LANG.re, function (m, com, str, kw, num) {
                 if (com) return '<span class="t-com">' + com + '</span>';
                 if (str) return '<span class="t-str">' + str + '</span>';
                 if (kw) return '<span class="t-kw">' + kw + '</span>';
@@ -1155,6 +1163,8 @@
         });
 
         /* ---------------- Init ---------------- */
+        document.getElementById('brand-sub').textContent = SECTIONS.length + ' lessons · ' + TREE.length + ' modules';
+        searchEl.placeholder = 'Search ' + SECTIONS.length + ' topics…';
         applyTheme();
         go(state.index);
     </script>
