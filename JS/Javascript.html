@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Complete Course — Modern Edition</title>
+    <script>
+        (function () {
+            var t = localStorage.getItem('js-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --surface-2: #f1f5f9;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e4e9f2;
+            --primary: #6366f1;
+            --primary-2: #8b5cf6;
+            --primary-soft: rgba(99, 102, 241, .12);
+            --code-bg: #0f172a;
+            --code-head: rgba(148, 163, 184, .08);
+            --shadow: 0 18px 40px -22px rgba(15, 23, 42, .35);
+            --sidebar: #0f172a;
+            --sidebar-2: #1e293b;
+            --sidebar-text: #cbd5e1;
+            --ok: #10b981;
+        }
+
+        html[data-theme="dark"] {
+            --bg: #0b1120;
+            --surface: #0f172a;
+            --surface-2: #131c30;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --border: #1e293b;
+            --primary: #818cf8;
+            --primary-2: #a78bfa;
+            --primary-soft: rgba(129, 140, 248, .16);
+            --code-bg: #020617;
+            --sidebar: #0b1120;
+            --sidebar-2: #111c33;
+            --shadow: 0 18px 40px -22px rgba(0, 0, 0, .8);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: var(--primary); }
+
+        /* ---------- Sidebar ---------- */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            width: 320px;
+            background: linear-gradient(180deg, var(--sidebar), var(--sidebar-2));
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            z-index: 60;
+            transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .brand {
+            padding: 20px 22px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, .15);
+        }
+
+        .brand-logo {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: grid; place-items: center;
+            font-weight: 800; font-size: 18px; color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 8px 18px -6px rgba(99, 102, 241, .8);
+        }
+
+        .brand h1 { font-size: 15px; margin: 0; color: #fff; letter-spacing: .2px; }
+        .brand span { font-size: 12px; color: #94a3b8; }
+
+        .search {
+            padding: 14px 16px 6px;
+            position: relative;
+        }
+
+        .search input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, .22);
+            background: rgba(2, 6, 23, .45);
+            color: #e2e8f0;
+            font-size: 13.5px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .search input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .25);
+        }
+
+        .search svg {
+            position: absolute;
+            left: 28px; top: 50%;
+            transform: translateY(-38%);
+            width: 15px; height: 15px;
+            color: #64748b;
+        }
+
+        .nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #334155 transparent;
+        }
+
+        .nav::-webkit-scrollbar { width: 8px; }
+        .nav::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+
+        .part-head {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 11px 12px;
+            border: 0;
+            border-radius: 10px;
+            background: rgba(148, 163, 184, .08);
+            color: #e2e8f0;
+            font: inherit;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            text-align: left;
+            cursor: pointer;
+            transition: background .18s;
+        }
+
+        .part-head:hover { background: rgba(148, 163, 184, .16); }
+        .part-head .arrow { margin-left: auto; width: 14px; height: 14px; color: #94a3b8; transition: transform .2s; }
+        .part-head.open .arrow { transform: rotate(90deg); }
+
+        .nav-group {
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #7c8aa3;
+            font-weight: 700;
+            padding: 13px 12px 4px;
+            line-height: 1.4;
+        }
+
+        .nav-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px 8px 16px;
+            border: 0;
+            background: transparent;
+            color: var(--sidebar-text);
+            font: inherit;
+            font-size: 13.5px;
+            text-align: left;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background .18s, color .18s;
+        }
+
+        .nav-item:hover { background: rgba(148, 163, 184, .12); color: #fff; }
+        .nav-item .nav-num {
+            width: 26px; height: 22px; flex: none;
+            display: grid; place-items: center;
+            font-size: 10.5px; font-weight: 700;
+            border-radius: 6px;
+            background: rgba(148, 163, 184, .15);
+            color: #cbd5e1;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, .9), rgba(139, 92, 246, .85));
+            color: #fff;
+            box-shadow: 0 10px 20px -12px rgba(99, 102, 241, .9);
+        }
+
+        .nav-item.active .nav-num { background: rgba(255, 255, 255, .22); color: #fff; }
+        .nav-item.done .nav-num { background: rgba(16, 185, 129, .2); color: #34d399; }
+        .nav-item.done.active .nav-num { background: rgba(255, 255, 255, .22); color: #fff; }
+
+        .sidebar-foot {
+            padding: 14px 18px 20px;
+            border-top: 1px solid rgba(148, 163, 184, .15);
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .track {
+            height: 7px;
+            border-radius: 99px;
+            background: rgba(148, 163, 184, .2);
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .track > i {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-2));
+            transition: width .4s ease;
+        }
+
+        /* ---------- Main ---------- */
+        .main {
+            margin-left: 320px;
+            min-height: 100vh;
+            padding: 26px 44px 90px;
+        }
+
+        .inner { max-width: 980px; margin: 0 auto; }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .crumb { font-size: 13px; color: var(--muted); }
+        .crumb b { color: var(--text); font-weight: 600; }
+
+        .icon-btn {
+            margin-left: auto;
+            width: 42px; height: 42px;
+            display: grid; place-items: center;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+            transition: transform .18s, box-shadow .18s, border-color .18s;
+        }
+
+        .icon-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); border-color: var(--primary); }
+        .icon-btn svg { width: 19px; height: 19px; }
+
+        .menu-btn {
+            display: none;
+            width: 42px; height: 42px;
+            place-items: center;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .doc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 44px 46px 48px;
+            box-shadow: var(--shadow);
+            animation: rise .42s cubic-bezier(.2, .7, .2, 1);
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--primary);
+            background: var(--primary-soft);
+            padding: 5px 11px;
+            border-radius: 99px;
+            margin-bottom: 12px;
+        }
+
+        .doc h2 {
+            font-size: 1.9rem;
+            line-height: 1.2;
+            margin: 0 0 18px;
+            letter-spacing: -.02em;
+        }
+
+        .doc h3 {
+            font-size: 1.15rem;
+            margin: 28px 0 10px;
+            letter-spacing: -.01em;
+        }
+
+        .doc p { margin: 0 0 14px; color: var(--text); }
+
+        .doc ul { margin: 0 0 16px; padding-left: 22px; }
+        .doc li { margin: 6px 0; }
+
+        .doc p code, .doc li code, .doc td code {
+            font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+            font-size: .86em;
+            background: var(--primary-soft);
+            color: var(--primary);
+            padding: .12em .42em;
+            border-radius: 6px;
+        }
+
+        /* ---------- Code blocks ---------- */
+        .code {
+            margin: 18px 0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: var(--code-bg);
+            border: 1px solid rgba(148, 163, 184, .16);
+            box-shadow: var(--shadow);
+        }
+
+        .code-head {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 14px;
+            background: var(--code-head);
+            border-bottom: 1px solid rgba(148, 163, 184, .12);
+        }
+
+        .dots { display: flex; gap: 6px; }
+        .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+        .dots i:nth-child(1) { background: #ff5f57; }
+        .dots i:nth-child(2) { background: #febc2e; }
+        .dots i:nth-child(3) { background: #28c840; }
+
+        .code-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-left: 8px;
+            letter-spacing: .03em;
+        }
+
+        .copy {
+            margin-left: auto;
+            border: 1px solid rgba(148, 163, 184, .28);
+            background: transparent;
+            color: #cbd5e1;
+            font: inherit;
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s, color .2s, border-color .2s;
+        }
+
+        .copy:hover { background: rgba(148, 163, 184, .16); }
+        .copy.ok { color: #34d399; border-color: #34d399; }
+
+        .code pre {
+            margin: 0;
+            padding: 18px 20px;
+            overflow: auto;
+            font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+            font-size: 13.5px;
+            line-height: 1.75;
+            color: #e2e8f0;
+            tab-size: 4;
+        }
+
+        .code pre code { background: none; color: inherit; padding: 0; }
+
+        .t-kw { color: #c792ea; }
+        .t-str { color: #c3e88d; }
+        .t-num { color: #f78c6c; }
+        .t-com { color: #5c6b8a; font-style: italic; }
+
+        /* ---------- Pager ---------- */
+        .pager {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 34px;
+            padding-top: 26px;
+            border-top: 1px solid var(--border);
+        }
+
+        .pager button {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 190px;
+            padding: 13px 18px;
+            border-radius: 13px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font: inherit;
+            cursor: pointer;
+            text-align: left;
+            transition: transform .18s, border-color .18s, box-shadow .18s;
+        }
+
+        .pager button.next { text-align: right; margin-left: auto; }
+        .pager button:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow); }
+        .pager button:disabled { opacity: .4; cursor: not-allowed; }
+        .pager small { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; }
+        .pager b { font-weight: 600; font-size: 14.5px; }
+
+        .backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, .55);
+            backdrop-filter: blur(2px);
+            z-index: 55;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); box-shadow: 0 0 60px rgba(0, 0, 0, .5); }
+            body.nav-open .sidebar { transform: none; }
+            body.nav-open .backdrop { display: block; }
+            .main { margin-left: 0; padding: 18px 18px 70px; }
+            .menu-btn { display: grid; }
+            .doc { padding: 28px 22px 32px; border-radius: 18px; }
+            .doc h2 { font-size: 1.55rem; }
+            .pager button { min-width: 0; flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">JS</div>
+            <div>
+                <h1>JavaScript Complete Course</h1>
+                <span>100 lessons · 16 modules</span>
+            </div>
+        </div>
+        <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input id="search" type="search" placeholder="Search 100 topics…" autocomplete="off">
+        </div>
+        <nav class="nav" id="nav"></nav>
+        <div class="sidebar-foot">
+            <div><strong id="progress-text">0 of 0</strong> topics explored</div>
+            <div class="track"><i id="progress-bar"></i></div>
+        </div>
+    </aside>
+
+    <div class="backdrop" id="backdrop"></div>
+
+    <main class="main">
+        <div class="inner">
+            <div class="topbar">
+                <button class="menu-btn icon-btn" id="menu-btn" aria-label="Menu" style="margin-left:0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <div class="crumb">Course &nbsp;/&nbsp; <b id="crumb">Loading…</b></div>
+                <button class="icon-btn" id="theme-btn" aria-label="Toggle theme" title="Toggle theme"></button>
+            </div>
+
+            <article class="doc" id="doc"></article>
+        </div>
+    </main>
+
+    <script>
+        /* ---------------- Syntax highlighting ---------------- */
+        function esc(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function highlight(src) {
+            var re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(`[^`]*`|'[^']*'|"[^"]*")|\b(const|let|var|function|return|if|else|for|while|do|of|in|new|class|constructor|this|typeof|instanceof|null|undefined|true|false|async|await|try|catch|finally|throw|switch|case|break|continue|default|extends|super|static|get|set|export|import|from|yield)\b|\b(\d+(?:\.\d+)?)\b/g;
+            return esc(src).replace(re, function (m, com, str, kw, num) {
+                if (com) return '<span class="t-com">' + com + '</span>';
+                if (str) return '<span class="t-str">' + str + '</span>';
+                if (kw) return '<span class="t-kw">' + kw + '</span>';
+                if (num) return '<span class="t-num">' + num + '</span>';
+                return m;
+            });
+        }
+
+        function codeBlock(src, label) {
+            var clean = src.replace(/^\n/, '').replace(/\n[ \t]*$/, '').replace(/\t/g, '    ');
+            return '<div class="code">' +
+                '<div class="code-head"><span class="dots"><i></i><i></i><i></i></span>' +
+                '<span class="code-label">' + (label || 'JavaScript') + '</span>' +
+                '<button class="copy" onclick="copyCode(this)">Copy</button></div>' +
+                '<pre><code>' + highlight(clean) + '</code></pre></div>';
+        }
+
+        function t(title, blocks) { return { title: title, body: blocks.join('') }; }
+
+        function copyCode(btn) {
+            var code = btn.closest('.code').querySelector('pre code');
+            var text = code.innerText;
+            var done = function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('ok');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1500);
+            };
+            if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done); }
+            else {
+                var r = document.createRange(); r.selectNode(code);
+                window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
+                document.execCommand('copy'); window.getSelection().removeAllRanges(); done();
+            }
+        }
+
+        /* ---------------- Course content ---------------- */
+        var COURSE = [
+            { short: 'Part 1', name: 'Core JavaScript Language', modules: [
+                { name: 'Module 1 · Getting Started', items: [
+                    t('What is JavaScript? History and Engine Basics', [
+                        "<p>JavaScript (JS) is a lightweight, interpreted (JIT-compiled) programming language that adds interactivity to web pages. It was created by Brendan Eich at Netscape in 1995 and standardized as <b>ECMAScript</b> in 1997.</p>",
+                        "<p>A <b>JavaScript engine</b> parses your code, compiles it to bytecode/machine code, and runs it. Examples: <code>V8</code> (Chrome, Node.js), <code>SpiderMonkey</code> (Firefox), <code>JavaScriptCore</code> (Safari).</p>",
+                        codeBlock('// Your first JavaScript program\nconsole.log("Hello, world!");\n\n// The engine reads, compiles and runs this line')
+                    ]),
+                    t('Setting Up the Developer Environment (VS Code & Node.js)', [
+                        "<p>You only need a browser to start, but a good setup speeds up learning:</p>",
+                        "<ul><li><b>VS Code</b> — free editor with excellent JS support.</li><li><b>Node.js</b> — runs JavaScript outside the browser, ships with <code>npm</code>.</li><li><b>Browser DevTools</b> — press <code>F12</code> to open the console.</li></ul>",
+                        codeBlock('node --version   // e.g. v20.11.0\nnpm --version\n\n// Create a file and run it\nnode hello.js', 'Terminal')
+                    ]),
+                    t('The Developer Console and console.log()', [
+                        "<p>The console is your debugging toolbox. <code>console.log()</code> prints values; there are also <code>warn</code>, <code>error</code>, and <code>table</code>.</p>",
+                        codeBlock('console.log("Log message");\nconsole.warn("Warning");\nconsole.error("Error");\nconsole.table([{ a: 1, b: 2 }, { a: 3, b: 4 }]);')
+                    ]),
+                    t('Linking JavaScript to HTML (script, defer, async)', [
+                        "<p>JavaScript can be <b>inline</b>, <b>internal</b> (inside <code>&lt;script&gt;</code>), or <b>external</b> (a <code>.js</code> file). External scripts are cached and keep HTML clean.</p>",
+                        "<ul><li>Default: downloads and blocks parsing until it runs.</li><li><code>defer</code>: downloads in parallel, runs after parsing, in order.</li><li><code>async</code>: downloads in parallel, runs as soon as ready (order not guaranteed).</li></ul>",
+                        codeBlock('<script src="app.js" defer><\/script>\n<script>\n  console.log("Inline script");\n<\/script>', 'HTML')
+                    ]),
+                    t('Execution Contexts and Strict Mode ("use strict")', [
+                        "<p>Code runs inside an <b>execution context</b> — the global context plus one per function call. <code>\"use strict\"</code> opts into a stricter mode: undeclared variables throw, and silent mistakes become errors.</p>",
+                        codeBlock('"use strict";\n\nx = 10;      // ReferenceError: x is not defined\nlet y = 10;  // fine')
+                    ])
+                ]},
+                { name: 'Module 2 · Variables & Data Types', items: [
+                    t('Declaring Variables: let, const, and Legacy var', [
+                        "<p>Use <code>let</code> for values that change and <code>const</code> for values that must not be reassigned. <code>var</code> is the legacy, function-scoped keyword — prefer to avoid it.</p>",
+                        codeBlock('let count = 1;   // can be reassigned\ncount = 2;\n\nconst PI = 3.14; // cannot be reassigned\n// PI = 3; // TypeError\n\nif (true) {\n  let block = "only in here";\n}\nconsole.log(typeof block); // "undefined"')
+                    ]),
+                    t('Primitive Data Types: String, Number, Boolean', [
+                        "<p>The three most common primitives are <b>String</b> (text), <b>Number</b> (always a 64-bit float) and <b>Boolean</b> (<code>true</code>/<code>false</code>).</p>",
+                        codeBlock('let name = "Ada";      // String\nlet score = 98.6;      // Number\nlet passed = true;     // Boolean\n\nconsole.log(typeof name);  // "string"\nconsole.log(typeof score); // "number"')
+                    ]),
+                    t('Special Primitives: null, undefined, Symbol, BigInt', [
+                        "<p><code>undefined</code> means a value was never set. <code>null</code> is an intentional absence. <code>Symbol</code> creates unique keys, and <code>BigInt</code> handles integers beyond the safe number range.</p>",
+                        codeBlock('let nothing = null;          // intentional absence\nlet notSet;                  // undefined\nlet id = Symbol("id");       // unique identifier\nlet big = 9007199254740993n; // BigInt\n\nconsole.log(typeof id);  // "symbol"\nconsole.log(typeof big); // "bigint"')
+                    ]),
+                    t('Dynamic Typing and Type Conversions (Type Casting)', [
+                        "<p>JavaScript is dynamically typed: a variable can hold any type, and types are checked at runtime. <b>Implicit coercion</b> happens automatically; <b>explicit</b> uses functions like <code>Number()</code>.</p>",
+                        codeBlock('// Implicit coercion\nconsole.log("5" + 2); // "52"\nconsole.log("5" - 2); // 3\n\n// Explicit conversion\nconsole.log(Number("42")); // 42\nconsole.log(String(7));    // "7"\nconsole.log(Boolean(0));   // false')
+                    ]),
+                    t('Template Literals and String Interpolation', [
+                        "<p>Template literals use backticks and support multi-line text plus interpolation with <code>${ }</code>.</p>",
+                        codeBlock('let name = "Ada";\nlet age = 36;\nlet msg = `Hello, ${name}! You are ${age}.`;\nconsole.log(msg);\n\nlet html = `\n  <div>${name}</div>\n`;')
+                    ])
+                ]},
+                { name: 'Module 3 · Operators & Math', items: [
+                    t('Basic Math Operators and the Math Object', [
+                        "<p>Arithmetic operators include <code>+ - * / % **</code>. The built-in <code>Math</code> object provides rounding, powers, random numbers, and constants.</p>",
+                        codeBlock('console.log(7 / 2);   // 3.5\nconsole.log(2 ** 5);  // 32\nconsole.log(10 % 3);  // 1\n\nconsole.log(Math.round(4.6));  // 5\nconsole.log(Math.floor(4.9));  // 4\nconsole.log(Math.ceil(4.1));   // 5\nconsole.log(Math.max(1, 9, 3)); // 9\nconsole.log(Math.sqrt(81));    // 9\nconsole.log(Math.PI);          // 3.14159...')
+                    ]),
+                    t('Assignment and Compound Assignment Operators', [
+                        "<p>The <code>=</code> operator assigns a value. Compound operators combine an operation with assignment, and <code>++</code> / <code>--</code> increment or decrement.</p>",
+                        codeBlock('let n = 10;\nn += 5;  // 15\nn -= 3;  // 12\nn *= 2;  // 24\nn /= 4;  // 6\nn++;     // 7\nn--;     // 6\nconsole.log(n);')
+                    ]),
+                    t('Comparison Operators (== vs ===)', [
+                        "<p><code>==</code> compares values after coercion, while <code>===</code> compares both value and type. Always prefer <code>===</code> to avoid surprising results.</p>",
+                        codeBlock('console.log(5 == "5");   // true  (loose)\nconsole.log(5 === "5");  // false (strict)\nconsole.log(null == undefined);  // true\nconsole.log(null === undefined); // false\nconsole.log(NaN === NaN); // false')
+                    ]),
+                    t('Logical Operators (&&, ||, !)', [
+                        "<p><code>&amp;&amp;</code> (AND), <code>||</code> (OR) and <code>!</code> (NOT) short-circuit and return operand values, not just booleans.</p>",
+                        codeBlock('let a = true && "yes";       // "yes"\nlet b = false || "fallback";  // "fallback"\nlet c = !true;                // false\n\n// Short-circuit avoids errors\nlet user = null;\nuser && console.log(user.name); // never runs')
+                    ]),
+                    t('The Nullish Coalescing Operator (??)', [
+                        "<p><code>??</code> returns the right side only when the left is <code>null</code> or <code>undefined</code>. Unlike <code>||</code>, it keeps valid falsy values like <code>0</code> and <code>\"\"</code>.</p>",
+                        codeBlock('let x = 0;\n\nconsole.log(x || 10); // 10 (0 is falsy)\nconsole.log(x ?? 10); // 0  (only null/undefined)\n\nlet settings = {};\nsettings.theme ??= "light"; // assign if nullish')
+                    ])
+                ]},
+                { name: 'Module 4 · Control Flow', items: [
+                    t('Conditional Statements: if, else if, else', [
+                        "<p>Conditionals run different blocks depending on tests. Evaluation stops at the first true branch.</p>",
+                        codeBlock('let hour = 14;\nlet greeting;\n\nif (hour < 12) {\n  greeting = "Good morning";\n} else if (hour < 18) {\n  greeting = "Good afternoon";\n} else {\n  greeting = "Good evening";\n}\nconsole.log(greeting);')
+                    ]),
+                    t('The Ternary Operator', [
+                        "<p>The ternary operator is a compact <code>if/else</code> that returns a value: <code>condition ? a : b</code>.</p>",
+                        codeBlock('let age = 20;\nlet type = age >= 18 ? "adult" : "minor";\nconsole.log(type); // "adult"')
+                    ]),
+                    t('The switch Statement', [
+                        "<p><code>switch</code> compares a value against several cases. Each case needs <code>break</code> to stop fall-through; <code>default</code> handles unmatched values.</p>",
+                        codeBlock('let fruit = "apple";\n\nswitch (fruit) {\n  case "apple":\n    console.log("Red");\n    break;\n  case "banana":\n    console.log("Yellow");\n    break;\n  default:\n    console.log("Unknown");\n}')
+                    ]),
+                    t('Looping: while and do...while Loops', [
+                        "<p><code>while</code> checks the condition before each pass. <code>do...while</code> runs the body at least once, then checks.</p>",
+                        codeBlock('let i = 0;\nwhile (i < 3) {\n  console.log(i);\n  i++;\n}\n\nlet j = 0;\ndo {\n  console.log(j);\n  j++;\n} while (j < 3);')
+                    ]),
+                    t('Looping: The for Loop', [
+                        "<p>The classic <code>for</code> loop groups initialization, condition and increment. <code>for...of</code> iterates the values of arrays and other iterables.</p>",
+                        codeBlock('for (let i = 0; i < 3; i++) {\n  console.log("i = " + i);\n}\n\nfor (const n of [10, 20, 30]) {\n  console.log(n);\n}')
+                    ]),
+                    t('Flow Control: break, continue, and Loop Labels', [
+                        "<p><code>break</code> exits a loop, <code>continue</code> skips to the next iteration, and labels let <code>break</code>/<code>continue</code> target outer loops.</p>",
+                        codeBlock('outer:\nfor (let i = 0; i < 3; i++) {\n  for (let j = 0; j < 3; j++) {\n    if (j === 1) continue;\n    if (i === 2) break outer;\n    console.log(i, j);\n  }\n}')
+                    ])
+                ]},
+                { name: 'Module 5 · Functions (Basics)', items: [
+                    t('Function Declarations vs. Function Expressions', [
+                        "<p>A <b>declaration</b> is hoisted and can be called before it appears. A <b>function expression</b> (assigned to a variable) is not hoisted.</p>",
+                        codeBlock('console.log(add(2, 3)); // 5 (hoisted)\nfunction add(a, b) {\n  return a + b;\n}\n\nconst sub = function (a, b) {\n  return a - b;\n};\nconsole.log(sub(5, 2)); // 3')
+                    ]),
+                    t('Parameters, Arguments, and Default Parameters', [
+                        "<p>Parameters are declared in the definition; arguments are the actual values passed. Default parameters apply when an argument is missing.</p>",
+                        codeBlock('function greet(name = "friend") {\n  return "Hello, " + name;\n}\n\nconsole.log(greet());       // Hello, friend\nconsole.log(greet("Ada"));  // Hello, Ada')
+                    ]),
+                    t('The return Statement', [
+                        "<p><code>return</code> ends a function and sends a value back to the caller. Functions without a return give back <code>undefined</code>.</p>",
+                        codeBlock('function area(w, h) {\n  return w * h;\n}\n\nfunction log(msg) {\n  console.log(msg); // returns undefined\n}\n\nconsole.log(area(4, 5)); // 20')
+                    ]),
+                    t('Arrow Functions: Syntax and Nuances', [
+                        "<p>Arrow functions are a concise syntax. A single expression can be returned implicitly, and object literals must be wrapped in parentheses.</p>",
+                        codeBlock('const add = (a, b) => a + b;\nconst square = n => n * n;\nconst obj = () => ({ ok: true });\n\nconsole.log(add(2, 3)); // 5\nconsole.log(square(4)); // 16\nconsole.log(obj().ok);  // true')
+                    ]),
+                    t('Callbacks and Higher-Order Functions Introduction', [
+                        "<p>A <b>higher-order function</b> takes or returns another function. A function passed as an argument is a <b>callback</b>.</p>",
+                        codeBlock('function repeat(n, action) {\n  for (let i = 0; i < n; i++) action(i);\n}\n\nrepeat(3, i => console.log("Pass " + i));\n\n[1, 2, 3].forEach(n => console.log(n * 2));')
+                    ])
+                ]}
+            ]},
+            { short: 'Part 2', name: 'Advanced JavaScript, Data Structures & OOP', modules: [
+                { name: 'Module 6 · Data Structures — Arrays', items: [
+                    t('Array Basics: Creation, Indexing, and Length', [
+                        "<p>Arrays hold ordered lists of values. They are zero-indexed and have a <code>length</code> property.</p>",
+                        codeBlock('const fruits = ["apple", "banana", "cherry"];\n\nconsole.log(fruits[0]);     // "apple"\nconsole.log(fruits.length); // 3\nconsole.log(fruits[fruits.length - 1]); // "cherry"')
+                    ]),
+                    t('Basic Array Methods: push, pop, shift, unshift', [
+                        "<p>Add or remove items from either end. <code>push</code>/<code>pop</code> work at the end, <code>unshift</code>/<code>shift</code> at the start.</p>",
+                        codeBlock('const arr = [1, 2, 3];\n\narr.push(4);     // add end\narr.pop();       // remove end\narr.unshift(0);  // add start\narr.shift();     // remove start\nconsole.log(arr); // [1, 2, 3]')
+                    ]),
+                    t('Iterating Arrays: for...of and forEach()', [
+                        "<p><code>for...of</code> is a clean loop over values. <code>forEach()</code> runs a callback for each element with value and index.</p>",
+                        codeBlock('const nums = [10, 20, 30];\n\nfor (const n of nums) {\n  console.log(n);\n}\n\nnums.forEach((value, index) => {\n  console.log(index, value);\n});')
+                    ]),
+                    t('Array Transformations: map()', [
+                        "<p><code>map()</code> creates a new array by applying a function to every element. It does not change the original.</p>",
+                        codeBlock('const nums = [1, 2, 3, 4];\nconst doubled = nums.map(n => n * 2);\nconsole.log(doubled); // [2, 4, 6, 8]\n\nconst users = [{ n: "Ada" }, { n: "Alan" }];\nconsole.log(users.map(u => u.n)); // ["Ada", "Alan"]')
+                    ]),
+                    t('Array Filtering: filter()', [
+                        "<p><code>filter()</code> returns a new array containing only the elements for which the callback returns true.</p>",
+                        codeBlock('const nums = [1, 2, 3, 4, 5, 6];\nconst evens = nums.filter(n => n % 2 === 0);\nconsole.log(evens); // [2, 4, 6]')
+                    ]),
+                    t('Array Reduction: reduce()', [
+                        "<p><code>reduce()</code> folds an array into a single value using an accumulator and the current element.</p>",
+                        codeBlock('const nums = [1, 2, 3, 4];\nconst sum = nums.reduce((total, n) => total + n, 0);\nconsole.log(sum); // 10\n\nconst max = nums.reduce((m, n) => Math.max(m, n));\nconsole.log(max); // 4')
+                    ]),
+                    t('Searching Arrays: find(), findIndex(), includes()', [
+                        "<p>Use <code>find()</code> for the first matching value, <code>findIndex()</code> for its position, and <code>includes()</code> for a boolean test.</p>",
+                        codeBlock('const nums = [5, 12, 8];\n\nconsole.log(nums.find(n => n > 10));      // 12\nconsole.log(nums.findIndex(n => n > 10)); // 1\nconsole.log(nums.includes(8));            // true\nconsole.log(nums.indexOf(5));             // 0')
+                    ]),
+                    t('Advanced Operations: Sorting, Slicing, and Flattening Arrays', [
+                        "<p><code>sort()</code> orders in place (pass a comparator for numbers), <code>slice()</code> copies a portion, and <code>flat()</code> flattens nested arrays.</p>",
+                        codeBlock('const nums = [3, 1, 2];\nnums.sort((a, b) => a - b); // [1, 2, 3]\nconsole.log(nums);\n\nconsole.log(nums.slice(1));          // [2, 3]\nconsole.log([[1, 2], [3, 4]].flat()); // [1, 2, 3, 4]\nconsole.log(nums.join(", "));        // "1, 2, 3"')
+                    ])
+                ]},
+                { name: 'Module 7 · Data Structures — Objects', items: [
+                    t('Object Literals: Properties and Methods', [
+                        "<p>Objects store data as <b>key: value</b> pairs. A value that is a function is called a method, and <code>this</code> refers to the object.</p>",
+                        codeBlock('const person = {\n  firstName: "Ada",\n  lastName: "Lovelace",\n  greet() {\n    return "Hi, " + this.firstName;\n  }\n};\nconsole.log(person.greet()); // "Hi, Ada"')
+                    ]),
+                    t('Accessing Properties: Dot vs. Bracket Notation', [
+                        "<p>Dot notation is simplest. Bracket notation is required for keys with spaces or when the key is stored in a variable.</p>",
+                        codeBlock('const user = { name: "Ada", "home city": "London" };\n\nconsole.log(user.name);         // dot\nconsole.log(user["home city"]); // bracket\n\nconst key = "name";\nconsole.log(user[key]);')
+                    ]),
+                    t('Iterating Objects: for...in, Object.keys(), Object.values()', [
+                        "<p><code>for...in</code> loops over keys. <code>Object.keys()</code>, <code>Object.values()</code> and <code>Object.entries()</code> return arrays.</p>",
+                        codeBlock('const obj = { a: 1, b: 2, c: 3 };\n\nfor (const key in obj) {\n  console.log(key, obj[key]);\n}\n\nconsole.log(Object.keys(obj));    // ["a","b","c"]\nconsole.log(Object.values(obj));  // [1,2,3]\nconsole.log(Object.entries(obj));  // [["a",1], ...]')
+                    ]),
+                    t('Object Destructuring', [
+                        "<p>Destructuring unpacks properties into variables, with optional renaming and default values.</p>",
+                        codeBlock('const user = { name: "Ada", age: 36, city: "London" };\n\nconst { name, age } = user;\nconst { city: town } = user;      // rename\nconst { country = "UK" } = user;  // default\n\nconsole.log(name, age, town, country);')
+                    ]),
+                    t('Array Destructuring', [
+                        "<p>Array destructuring pulls values by position, can skip items, and makes swapping variables trivial.</p>",
+                        codeBlock('const colors = ["red", "green", "blue"];\n\nconst [first, , third] = colors;\nconsole.log(first, third); // "red" "blue"\n\nlet a = 1, b = 2;\n[a, b] = [b, a]; // swap\nconsole.log(a, b); // 2 1')
+                    ]),
+                    t('The Spread Operator (...) and Rest Parameters', [
+                        "<p><b>Spread</b> expands an iterable into individual values; <b>rest</b> collects many arguments into a single array.</p>",
+                        codeBlock('const a = [1, 2];\nconst b = [...a, 3, 4];       // [1,2,3,4]\nconst copy = { ...{ x: 1 }, y: 2 };\n\nfunction sum(...nums) {\n  return nums.reduce((t, n) => t + n, 0);\n}\nconsole.log(sum(1, 2, 3, 4)); // 10')
+                    ]),
+                    t('Optional Chaining (?.)', [
+                        "<p>Optional chaining safely accesses nested properties: if something is <code>null</code>/<code>undefined</code>, it returns <code>undefined</code> instead of throwing.</p>",
+                        codeBlock('const user = { name: "Ada", address: { city: "London" } };\n\nconsole.log(user?.name);          // "Ada"\nconsole.log(user?.phone?.number); // undefined (no error)\n\nconst arr = [1, 2];\nconsole.log(arr?.[5]);            // undefined')
+                    ])
+                ]},
+                { name: 'Module 8 · Advanced Core Concepts', items: [
+                    t('The Call Stack and Memory Heap', [
+                        "<p>The <b>call stack</b> tracks which function is running (LIFO). The <b>heap</b> is an unstructured memory pool where objects live.</p>",
+                        codeBlock('function first() {\n  second(); // pushed on the stack\n}\nfunction second() {\n  console.log("running");\n}\nfirst();')
+                    ]),
+                    t('Lexical Scope: Global, Function, and Block Scope', [
+                        "<p>Scope determines where variables are visible. Inner functions can read outer variables because of <b>lexical (static) scope</b>.</p>",
+                        codeBlock('let global = "global";\n\nfunction outer() {\n  let outerVar = "outer";\n  function inner() {\n    console.log(global, outerVar); // accessible\n  }\n  inner();\n}\nouter();')
+                    ]),
+                    t('Hoisting and the Temporal Dead Zone (TDZ)', [
+                        "<p><code>var</code> declarations are hoisted and initialized to <code>undefined</code>. <code>let</code>/<code>const</code> are hoisted but uninitialized until the declaration — the <b>Temporal Dead Zone</b>.</p>",
+                        codeBlock('console.log(x); // undefined (var hoisted)\nvar x = 5;\n\n// console.log(y); // ReferenceError (TDZ)\nlet y = 10;')
+                    ]),
+                    t('Closures: Function State and Lexical Environments', [
+                        "<p>A closure is a function that remembers the variables from the scope where it was created — even after that scope has finished.</p>",
+                        codeBlock('function counter() {\n  let count = 0; // private state\n  return function () {\n    count++;\n    return count;\n  };\n}\n\nconst next = counter();\nconsole.log(next()); // 1\nconsole.log(next()); // 2')
+                    ]),
+                    t('The this Keyword: Context and Rules', [
+                        "<p><code>this</code> depends on how a function is called: in a method it is the object, in a plain call it is <code>undefined</code> in strict mode (or the global object). Arrow functions inherit <code>this</code>.</p>",
+                        codeBlock('const person = {\n  name: "Ada",\n  greet() {\n    console.log(this.name); // "Ada"\n  }\n};\nperson.greet();')
+                    ]),
+                    t('Explicit Binding: call(), apply(), and bind()', [
+                        "<p><code>call</code> and <code>apply</code> invoke a function with a chosen <code>this</code> (apply takes an array of args). <code>bind</code> returns a new bound function.</p>",
+                        codeBlock('function greet(greeting) {\n  return greeting + ", " + this.name;\n}\nconst user = { name: "Ada" };\n\nconsole.log(greet.call(user, "Hi"));     // Hi, Ada\nconsole.log(greet.apply(user, ["Hey"])); // Hey, Ada\nconsole.log(greet.bind(user, "Hello")()); // Hello, Ada')
+                    ]),
+                    t('Immediately Invoked Function Expressions (IIFE)', [
+                        "<p>An IIFE runs as soon as it is defined. Historically it was used to create a private scope and avoid polluting the global object.</p>",
+                        codeBlock('(function () {\n  const secret = "hidden";\n  console.log("Runs now: " + secret);\n})();\n\n(() => console.log("IIFE arrow"))();')
+                    ])
+                ]},
+                { name: 'Module 9 · Specialized Data Structures', items: [
+                    t('The Map and WeakMap Objects', [
+                        "<p><code>Map</code> holds key/value pairs of any type and remembers insertion order. <code>WeakMap</code> keys must be objects and are garbage-collected.</p>",
+                        codeBlock('const map = new Map();\nmap.set("name", "Ada");\nmap.set(1, "one");\n\nconsole.log(map.get("name")); // "Ada"\nconsole.log(map.has(1));      // true\nmap.forEach((v, k) => console.log(k, v));\n\nconst wm = new WeakMap(); // object keys only')
+                    ]),
+                    t('The Set and WeakSet Objects', [
+                        "<p>A <code>Set</code> stores unique values. A <code>WeakSet</code> stores unique objects and allows garbage collection.</p>",
+                        codeBlock('const set = new Set([1, 2, 2, 3, 3]);\nconsole.log(set);        // Set {1,2,3}\nset.add(4);\nconsole.log(set.has(2)); // true\nconsole.log(set.size);   // 4\n\nconst ws = new WeakSet(); // objects only')
+                    ]),
+                    t('The Date Object and Time Manipulation', [
+                        "<p><code>Date</code> represents a single moment in time. Months are zero-based, and <code>getTime()</code> returns milliseconds since 1970.</p>",
+                        codeBlock('const now = new Date();\nconsole.log(now.getFullYear());\nconsole.log(now.getMonth()); // 0-based\n\nconst date = new Date("2026-01-15");\nconsole.log(date.getTime()); // milliseconds\nconsole.log(Date.now());     // current timestamp')
+                    ]),
+                    t('JSON (JavaScript Object Notation): parse and stringify', [
+                        "<p>JSON is a text format for data exchange. <code>JSON.stringify</code> converts values to text and <code>JSON.parse</code> converts text back.</p>",
+                        codeBlock('const obj = { name: "Ada", age: 36 };\n\nconst json = JSON.stringify(obj);\nconsole.log(json); // {"name":"Ada","age":36}\n\nconst parsed = JSON.parse(json);\nconsole.log(parsed.name); // "Ada"')
+                    ])
+                ]},
+                { name: 'Module 10 · Object-Oriented Programming (OOP)', items: [
+                    t('Constructor Functions and the new Operator', [
+                        "<p>A constructor function describes an object type. Calling it with <code>new</code> creates an instance and binds <code>this</code> to it.</p>",
+                        codeBlock('function Person(name) {\n  this.name = name;\n}\nPerson.prototype.greet = function () {\n  return "Hi, " + this.name;\n};\n\nconst p = new Person("Ada");\nconsole.log(p.greet()); // "Hi, Ada"')
+                    ]),
+                    t('Prototypes and Prototypal Inheritance', [
+                        "<p>Every object has a hidden prototype link. Property lookups walk up the <b>prototype chain</b> until a match or <code>null</code> is found.</p>",
+                        codeBlock('function Animal(name) {\n  this.name = name;\n}\nAnimal.prototype.speak = function () {\n  return this.name + " makes a sound";\n};\n\nconst dog = new Animal("Rex");\nconsole.log(dog.speak());\nconsole.log(Object.getPrototypeOf(dog) === Animal.prototype); // true')
+                    ]),
+                    t('Built-in Prototypes and Object Delegation', [
+                        "<p>Built-in types like Array and Object have prototypes too. Methods are shared through delegation rather than copied onto every instance.</p>",
+                        codeBlock('const arr = [1, 2, 3];\nconsole.log(arr.__proto__ === Array.prototype);              // true\nconsole.log(Array.prototype.__proto__ === Object.prototype); // true\nconsole.log(arr.hasOwnProperty("length")); // true\nconsole.log(arr.hasOwnProperty("map"));    // false (inherited)')
+                    ]),
+                    t('ES6 Classes: Syntactic Sugar', [
+                        "<p><code>class</code> is a cleaner syntax over prototypes. The <code>constructor</code> runs on creation, and methods live on the prototype.</p>",
+                        codeBlock('class Person {\n  constructor(name) {\n    this.name = name;\n  }\n  greet() {\n    return "Hi, " + this.name;\n  }\n}\n\nconst p = new Person("Ada");\nconsole.log(p.greet()); // "Hi, Ada"')
+                    ]),
+                    t('Class Inheritance: extends and super', [
+                        "<p><code>extends</code> creates a subclass and <code>super()</code> calls the parent constructor. <code>super.method()</code> accesses parent methods.</p>",
+                        codeBlock('class Animal {\n  constructor(name) { this.name = name; }\n  speak() { return this.name + " speaks"; }\n}\n\nclass Dog extends Animal {\n  constructor(name, breed) {\n    super(name);\n    this.breed = breed;\n  }\n  speak() { return super.speak() + " (woof)"; }\n}\n\nconsole.log(new Dog("Rex", "Lab").speak());')
+                    ]),
+                    t('Encapsulation: Private Fields and Methods (#)', [
+                        "<p>Fields prefixed with <code>#</code> are truly private — accessible only inside the class body.</p>",
+                        codeBlock('class BankAccount {\n  #balance = 0; // private field\n\n  deposit(amount) { this.#balance += amount; }\n  get balance() { return this.#balance; }\n}\n\nconst acc = new BankAccount();\nacc.deposit(100);\nconsole.log(acc.balance); // 100')
+                    ]),
+                    t('Getters and Setters', [
+                        "<p><code>get</code> and <code>set</code> define computed properties with validation logic that runs on access.</p>",
+                        codeBlock('class Temperature {\n  constructor(c) { this._c = c; }\n\n  get celsius() { return this._c; }\n  set celsius(v) {\n    if (v < -273.15) throw new Error("Too cold");\n    this._c = v;\n  }\n}\n\nconst t = new Temperature(20);\nt.celsius = 25;\nconsole.log(t.celsius); // 25')
+                    ]),
+                    t('Polymorphism and Method Overriding', [
+                        "<p>Subclasses can override parent methods, so calling the same method on different objects produces different behavior.</p>",
+                        codeBlock('class Shape {\n  area() { return 0; }\n}\nclass Circle extends Shape {\n  constructor(r) { super(); this.r = r; }\n  area() { return Math.PI * this.r ** 2; } // override\n}\n\n[new Shape(), new Circle(2)].forEach(s => console.log(s.area()));')
+                    ])
+                ]}
+            ]},
+            { short: 'Part 3', name: 'The Browser, DOM, and Asynchronous JS', modules: [
+                { name: 'Module 11 · The Document Object Model (DOM)', items: [
+                    t('Understanding the Browser Object Model (BOM) and DOM Tree', [
+                        "<p>The <b>BOM</b> exposes <code>window</code>, <code>navigator</code>, <code>location</code> and <code>history</code>. The <b>DOM</b> represents the page as a tree of nodes.</p>",
+                        codeBlock('console.log(window.innerWidth);\nconsole.log(navigator.userAgent);\nconsole.log(location.href);\n\n// DOM tree: document -> html -> (head, body) -> elements')
+                    ]),
+                    t('Selecting Elements: getElementById, querySelector', [
+                        "<p><code>getElementById</code> finds one element by id. <code>querySelector</code> accepts any CSS selector; <code>querySelectorAll</code> returns all matches.</p>",
+                        codeBlock('const byId = document.getElementById("title");\nconst first = document.querySelector(".card");\nconst all = document.querySelectorAll("li");\n\nall.forEach(el => console.log(el.textContent));')
+                    ]),
+                    t('Navigating the DOM Tree (Parents, Children, Siblings)', [
+                        "<p>From any node you can move up, down and sideways using element properties that ignore text nodes.</p>",
+                        codeBlock('const el = document.querySelector(".item");\n\nconsole.log(el.parentElement);         // parent\nconsole.log(el.children);              // child elements\nconsole.log(el.nextElementSibling);    // next sibling\nconsole.log(el.previousElementSibling); // previous')
+                    ]),
+                    t('Manipulating Text and HTML Content', [
+                        "<p><code>textContent</code> gets/sets plain text safely. <code>innerHTML</code> parses HTML — powerful but can be an XSS risk with untrusted data.</p>",
+                        codeBlock('const el = document.querySelector("#demo");\n\nel.textContent = "Plain text";\nel.innerHTML = "HTML <b>rendered</b>";\nconsole.log(el.textContent);')
+                    ]),
+                    t('Modifying Element Attributes and Properties', [
+                        "<p>DOM properties (<code>href</code>, <code>value</code>) and attributes (<code>setAttribute</code>/<code>getAttribute</code>) let you read and change element data.</p>",
+                        codeBlock('const link = document.querySelector("a");\n\nlink.href = "https://example.com";\nlink.setAttribute("target", "_blank");\nconsole.log(link.getAttribute("href"));\nlink.removeAttribute("target");')
+                    ]),
+                    t('Manipulating CSS Styles and Classes', [
+                        "<p>Edit inline styles through the <code>style</code> object, or better, toggle classes with <code>classList</code> to keep styling in CSS.</p>",
+                        codeBlock('const box = document.querySelector(".box");\n\nbox.style.backgroundColor = "#6366f1";\nbox.style.padding = "10px";\n\nbox.classList.add("active");\nbox.classList.remove("hidden");\nbox.classList.toggle("dark");\nconsole.log(box.classList.contains("active"));')
+                    ]),
+                    t('Creating, Inserting, and Deleting DOM Elements', [
+                        "<p>Build elements with <code>createElement</code>, attach them with <code>append</code>/<code>prepend</code>, and remove them with <code>remove()</code>.</p>",
+                        codeBlock('const ul = document.querySelector("ul");\n\nconst li = document.createElement("li");\nli.textContent = "New item";\n\nul.append(li);\nul.prepend(li.cloneNode(true));\n\nli.remove();')
+                    ])
+                ]},
+                { name: 'Module 12 · Browser Events', items: [
+                    t('Introduction to Events and Event Listeners', [
+                        "<p>Events are things that happen in the page. <code>addEventListener</code> attaches a handler without overwriting existing ones.</p>",
+                        codeBlock('const btn = document.querySelector("#myBtn");\n\nbtn.addEventListener("click", function () {\n  console.log("Clicked!");\n});\n\nbtn.addEventListener("click", () => console.log("Again"));')
+                    ]),
+                    t('The Event Object and Preventing Default Actions', [
+                        "<p>Handlers receive an <b>event object</b> with details like <code>type</code> and <code>target</code>. <code>preventDefault()</code> cancels the browser default.</p>",
+                        codeBlock('const link = document.querySelector("a");\n\nlink.addEventListener("click", function (event) {\n  event.preventDefault(); // stop navigation\n  console.log(event.type, event.target);\n});')
+                    ]),
+                    t('Event Propagation: Bubbling and Capturing', [
+                        "<p>Events travel down (capture) then up (bubble) the DOM. Pass <code>true</code> as the third argument to listen during capture.</p>",
+                        codeBlock('parent.addEventListener("click", () => console.log("parent"), false);\n\nchild.addEventListener("click", function (e) {\n  console.log("child");\n  // e.stopPropagation(); // stop bubbling\n});')
+                    ]),
+                    t('Event Delegation', [
+                        "<p>Instead of many listeners, attach one to a parent and inspect <code>event.target</code>. This works even for future children.</p>",
+                        codeBlock('const list = document.querySelector("ul");\n\nlist.addEventListener("click", function (event) {\n  if (event.target.matches("li")) {\n    console.log("Clicked: " + event.target.textContent);\n  }\n});')
+                    ]),
+                    t('Mouse and Pointer Events', [
+                        "<p>Mouse/pointer events include <code>click</code>, <code>mouseenter</code>, <code>mouseleave</code>, and <code>mousemove</code> with coordinates.</p>",
+                        codeBlock('const box = document.querySelector(".box");\n\nbox.addEventListener("mouseenter", () => console.log("enter"));\nbox.addEventListener("mouseleave", () => console.log("leave"));\nbox.addEventListener("mousemove", e => {\n  console.log(e.clientX, e.clientY);\n});')
+                    ]),
+                    t('Keyboard Events', [
+                        "<p>Keyboard events fire on <code>keydown</code>, <code>keyup</code>. Use <code>event.key</code> and modifier flags like <code>ctrlKey</code>.</p>",
+                        codeBlock('document.addEventListener("keydown", function (event) {\n  console.log(event.key); // "a", "Enter", "ArrowUp"\n  if (event.ctrlKey && event.key === "k") {\n    console.log("Shortcut!");\n  }\n});')
+                    ]),
+                    t('Form Events and Input Validation', [
+                        "<p>Handle <code>submit</code>, read values from <code>form.elements</code>, and validate before sending data.</p>",
+                        codeBlock('const form = document.querySelector("form");\n\nform.addEventListener("submit", function (event) {\n  event.preventDefault();\n  const email = form.elements.email.value;\n  if (!email.includes("@")) {\n    console.log("Invalid email");\n  }\n});')
+                    ]),
+                    t('Page Lifecycle Events (DOMContentLoaded, load)', [
+                        "<p><code>DOMContentLoaded</code> fires when HTML is parsed; <code>load</code> fires after every resource (images, etc.) finishes.</p>",
+                        codeBlock('document.addEventListener("DOMContentLoaded", () => {\n  console.log("DOM ready");\n});\n\nwindow.addEventListener("load", () => {\n  console.log("Page fully loaded");\n});')
+                    ])
+                ]},
+                { name: 'Module 13 · Asynchronous JavaScript', items: [
+                    t('Synchronous vs. Asynchronous Code', [
+                        "<p>Synchronous code runs line by line and blocks until done. Asynchronous code starts a task and continues, handling the result later.</p>",
+                        codeBlock('console.log("1");\nsetTimeout(() => console.log("2"), 0);\nconsole.log("3");\n\n// Output: 1, 3, 2 (async runs after sync)')
+                    ]),
+                    t('The Event Loop, Web APIs, and the Task Queue', [
+                        "<p>Async work is handed to <b>Web APIs</b>. When ready, callbacks sit in a queue. The <b>event loop</b> moves them to the call stack when it is free.</p>",
+                        codeBlock('console.log("start");\nsetTimeout(() => console.log("timer"), 0);\nPromise.resolve().then(() => console.log("promise"));\nconsole.log("end");\n\n// start, end, promise, timer')
+                    ]),
+                    t('Timers: setTimeout and setInterval', [
+                        "<p><code>setTimeout</code> runs a function once after a delay. <code>setInterval</code> repeats it. Both return ids used to cancel.</p>",
+                        codeBlock('const id = setTimeout(() => {\n  console.log("Runs once after 1s");\n}, 1000);\nclearTimeout(id);\n\nconst repeat = setInterval(() => {\n  console.log("Every 2s");\n}, 2000);\nclearInterval(repeat);')
+                    ]),
+                    t('Callback Patterns and "Callback Hell"', [
+                        "<p>Nesting callbacks to sequence async steps quickly becomes deeply indented and hard to maintain — the infamous <b>callback hell</b>.</p>",
+                        codeBlock('login(user, function (err, data) {\n  getProfile(data.id, function (err, profile) {\n    getPosts(profile.id, function (err, posts) {\n      console.log(posts);\n    });\n  });\n});')
+                    ]),
+                    t('Introduction to Promises: States and Fates', [
+                        "<p>A <b>Promise</b> represents a future value. It starts <b>pending</b>, then becomes <b>fulfilled</b> or <b>rejected</b> — once, and never changes again.</p>",
+                        codeBlock('const promise = new Promise((resolve, reject) => {\n  const ok = true;\n  setTimeout(() => ok ? resolve("Done") : reject("Failed"), 500);\n});\n\npromise.then(v => console.log(v));')
+                    ]),
+                    t('Chaining Promises and Error Handling (.then, .catch, .finally)', [
+                        "<p>Each <code>.then</code> returns a new promise, enabling clean chains. <code>.catch</code> handles rejections and <code>.finally</code> always runs.</p>",
+                        codeBlock('fetch("/data.json")\n  .then(res => res.json())\n  .then(data => console.log(data))\n  .catch(err => console.error("Error:", err))\n  .finally(() => console.log("Finished"));')
+                    ]),
+                    t('Promise Combinators (Promise.all, race, any)', [
+                        "<p><code>all</code> waits for every promise, <code>race</code> settles with the first, <code>allSettled</code> never rejects, and <code>any</code> resolves with the first success.</p>",
+                        codeBlock('const p1 = Promise.resolve(1);\nconst p2 = Promise.resolve(2);\n\nPromise.all([p1, p2]).then(v => console.log(v));   // [1, 2]\nPromise.race([p1, p2]).then(v => console.log(v));  // 1\nPromise.allSettled([p1, Promise.reject("x")])\n  .then(r => console.log(r));\nPromise.any([Promise.reject("x"), p2])\n  .then(v => console.log(v)); // 2')
+                    ]),
+                    t('Async / Await: Modern Asynchronous Syntax', [
+                        "<p><code>async</code> functions always return a promise; <code>await</code> pauses inside the function until a promise settles, so async code reads like sync code.</p>",
+                        codeBlock('async function load() {\n  try {\n    const res = await fetch("/data.json");\n    const data = await res.json();\n    console.log(data);\n  } catch (err) {\n    console.error(err);\n  }\n}\nload();')
+                    ]),
+                    t('Microtasks vs. Macrotasks in the Event Loop', [
+                        "<p>Microtasks (promise callbacks) run after the current task and before the next macrotask (<code>setTimeout</code>, I/O).</p>",
+                        codeBlock('console.log("script start");\n\nsetTimeout(() => console.log("macrotask"), 0);\n\nPromise.resolve()\n  .then(() => console.log("microtask 1"))\n  .then(() => console.log("microtask 2"));\n\nconsole.log("script end");')
+                    ])
+                ]}
+            ]},
+            { short: 'Part 4', name: 'Web APIs, Tooling, and Architecture', modules: [
+                { name: 'Module 14 · Networking & Web APIs', items: [
+                    t('Introduction to HTTP Requests and REST APIs', [
+                        "<p>HTTP is the protocol of the web. REST APIs model resources with URLs and use HTTP methods to act on them.</p>",
+                        codeBlock('// GET    - read\n// POST   - create\n// PUT    - replace\n// PATCH  - update\n// DELETE - remove\n\n// Example endpoint:\n// https://api.example.com/users/1')
+                    ]),
+                    t('The Fetch API: Making GET and POST Requests', [
+                        "<p><code>fetch()</code> returns a promise for a <code>Response</code>. You then parse JSON and, for sending data, set a method, headers and body.</p>",
+                        codeBlock('// GET\nfetch("https://api.example.com/users")\n  .then(res => res.json())\n  .then(data => console.log(data));\n\n// POST\nfetch("https://api.example.com/users", {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify({ name: "Ada" })\n});')
+                    ]),
+                    t('Handling Network Errors and HTTP Status Codes', [
+                        "<p><code>fetch</code> only rejects on network failure — not on 4xx/5xx. Check <code>response.ok</code> and throw for bad statuses.</p>",
+                        codeBlock('async function getUser() {\n  const res = await fetch("/api/user");\n  if (!res.ok) { // 200-299 is ok\n    throw new Error("HTTP " + res.status);\n  }\n  return res.json();\n}\n\ngetUser().catch(err => console.error(err));')
+                    ]),
+                    t('Cross-Origin Resource Sharing (CORS) Basics', [
+                        "<p>CORS is a browser security rule: cross-origin reads require the server to send an <code>Access-Control-Allow-Origin</code> header.</p>",
+                        codeBlock('fetch("https://another-domain.com/api")\n  .then(res => res.json())\n  .catch(err => console.error("CORS/network error:", err));')
+                    ]),
+                    t('Web Storage: localStorage and sessionStorage', [
+                        "<p><code>localStorage</code> persists until cleared; <code>sessionStorage</code> lasts for the tab session. Both store strings only.</p>",
+                        codeBlock('localStorage.setItem("theme", "dark");\nconsole.log(localStorage.getItem("theme"));\nlocalStorage.removeItem("theme");\n\nsessionStorage.setItem("draft", "text");\n\nlocalStorage.setItem("user", JSON.stringify({ id: 1 }));')
+                    ]),
+                    t('Cookies and Client-Side State', [
+                        "<p>Cookies are small strings sent with every HTTP request. They support expiry and security flags, unlike Web Storage.</p>",
+                        codeBlock('document.cookie = "user=Ada; max-age=3600; path=/";\n\nconsole.log(document.cookie); // "user=Ada"')
+                    ]),
+                    t('The Geolocation API', [
+                        "<p><code>navigator.geolocation</code> requests the user location. It needs permission and only works in secure contexts (HTTPS).</p>",
+                        codeBlock('navigator.geolocation.getCurrentPosition(\n  pos => {\n    console.log(pos.coords.latitude);\n    console.log(pos.coords.longitude);\n  },\n  err => console.error("Denied:", err.message)\n);')
+                    ]),
+                    t('Introduction to Canvas for 2D Graphics', [
+                        "<p>The <code>&lt;canvas&gt;</code> element gives a drawing surface accessed through a 2D context for shapes, images and animation.</p>",
+                        codeBlock('<canvas id="c" width="200" height="100"><\/canvas>\n<script>\n  const ctx = document.getElementById("c").getContext("2d");\n  ctx.fillStyle = "#6366f1";\n  ctx.fillRect(10, 10, 100, 50);\n  ctx.strokeRect(120, 10, 60, 50);\n<\/script>', 'HTML')
+                    ])
+                ]},
+                { name: 'Module 15 · Error Handling and Debugging', items: [
+                    t('Using try...catch...finally Blocks', [
+                        "<p>Wrap risky code in <code>try</code>. <code>catch</code> receives the error, and <code>finally</code> always runs — useful for cleanup.</p>",
+                        codeBlock('try {\n  const data = JSON.parse("{ bad json }");\n} catch (err) {\n  console.error("Caught:", err.message);\n} finally {\n  console.log("Always runs");\n}')
+                    ]),
+                    t('Throwing Custom Errors and Extending the Error Object', [
+                        "<p>Create meaningful error types by extending <code>Error</code>, then throw and catch them with a recognizable <code>name</code>.</p>",
+                        codeBlock('class ValidationError extends Error {\n  constructor(message) {\n    super(message);\n    this.name = "ValidationError";\n  }\n}\n\ntry {\n  throw new ValidationError("Invalid input");\n} catch (err) {\n  console.log(err.name, err.message);\n}')
+                    ]),
+                    t('Debugging with Chrome DevTools: Breakpoints and Watchers', [
+                        "<p>In the Sources panel, set breakpoints by clicking a line number, inspect the Scope/Watch panels, and use <code>debugger</code> to pause execution.</p>",
+                        codeBlock('function calculate(a, b) {\n  debugger; // execution pauses here\n  return a + b;\n}\n\ncalculate(2, 3);')
+                    ])
+                ]},
+                { name: 'Module 16 · Modules and Modern Tooling', items: [
+                    t('JavaScript Modules: import and export (ESM)', [
+                        "<p>ES Modules split code into files. Use <code>export</code> to expose values and <code>import</code> to consume them. Add <code>type=\"module\"</code> to the script tag.</p>",
+                        codeBlock('// math.js\nexport const add = (a, b) => a + b;\nexport default function multiply(a, b) {\n  return a * b;\n}\n\n// main.js\nimport multiply, { add } from "./math.js";\nconsole.log(add(2, 3), multiply(2, 3));', 'JavaScript (ESM)')
+                    ]),
+                    t('Node.js Introduction and npm (Node Package Manager)', [
+                        "<p>Node.js runs JavaScript on the server. <code>npm</code> installs libraries from a huge registry and manages scripts.</p>",
+                        codeBlock('node --version\nnpm --version\n\nnpm init -y            # create package.json\nnpm install express    # add a dependency\nnpx create-react-app my-app', 'Terminal')
+                    ]),
+                    t('Managing Dependencies with package.json', [
+                        "<p><code>package.json</code> describes a project: its name, scripts, and dependencies. <code>npm install</code> reads it to reproduce the environment.</p>",
+                        codeBlock('{\n  "name": "my-app",\n  "version": "1.0.0",\n  "type": "module",\n  "scripts": {\n    "start": "node index.js"\n  },\n  "dependencies": {\n    "express": "^4.18.0"\n  }\n}', 'JSON')
+                    ]),
+                    t('Code Quality Tools: ESLint and Prettier', [
+                        "<p><b>ESLint</b> finds bugs and enforces rules; <b>Prettier</b> formats code. Both are configured by files and run via npm.</p>",
+                        codeBlock('{\n  "eslintConfig": { "extends": "eslint:recommended" },\n  "prettier": { "semi": true, "singleQuote": true }\n}', 'JSON')
+                    ]),
+                    t('Introduction to TypeScript: Strongly Typed JavaScript', [
+                        "<p>TypeScript adds static types on top of JavaScript. Types are checked at compile time and erased when compiled to plain JS.</p>",
+                        codeBlock('function add(a: number, b: number): number {\n  return a + b;\n}\n\nlet name: string = "Ada";\n// add("x", 1); // compile-time error', 'TypeScript')
+                    ])
+                ]}
+            ]}
+        ];
+
+        /* ---------------- Flatten the course ---------------- */
+        var SECTIONS = [];
+        var TREE = COURSE.map(function (part, pi) {
+            return {
+                short: part.short,
+                name: part.name,
+                pi: pi,
+                modules: part.modules.map(function (mod, mi) {
+                    return {
+                        name: mod.name,
+                        mi: mi,
+                        items: mod.items.map(function (item) {
+                            var rec = {
+                                n: SECTIONS.length + 1,
+                                id: 't' + (SECTIONS.length + 1),
+                                title: item.title,
+                                body: item.body,
+                                pi: pi,
+                                mi: mi,
+                                part: part.short,
+                                partName: part.name,
+                                module: mod.name
+                            };
+                            SECTIONS.push(rec);
+                            return rec;
+                        })
+                    };
+                })
+            };
+        });
+
+        /* ---------------- State ---------------- */
+        var state = {
+            index: 0,
+            theme: localStorage.getItem('js-theme') || 'light',
+            visited: new Set(JSON.parse(localStorage.getItem('js-visited') || '[]')),
+            openParts: new Set()
+        };
+
+        state.visited = new Set(Array.from(state.visited).filter(function (id) {
+            return SECTIONS.some(function (s) { return s.id === id; });
+        }));
+
+        var saved = localStorage.getItem('js-active');
+        if (saved) {
+            var found = SECTIONS.findIndex(function (s) { return s.id === saved; });
+            if (found >= 0) state.index = found;
+        }
+        state.openParts.add(SECTIONS[state.index].pi);
+
+        /* ---------------- Elements ---------------- */
+        var navEl = document.getElementById('nav');
+        var docEl = document.getElementById('doc');
+        var crumbEl = document.getElementById('crumb');
+        var searchEl = document.getElementById('search');
+        var themeBtn = document.getElementById('theme-btn');
+
+        var ICONS = {
+            sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>',
+            moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>',
+            arrow: '<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"></path></svg>'
+        };
+
+        /* ---------------- Navigation tree ---------------- */
+        function renderNav(filter) {
+            filter = (filter || '').toLowerCase();
+            var html = '';
+
+            TREE.forEach(function (part) {
+                if (filter) {
+                    var any = part.modules.some(function (mod) {
+                        return mod.items.some(function (it) {
+                            return it.title.toLowerCase().indexOf(filter) > -1 ||
+                                mod.name.toLowerCase().indexOf(filter) > -1;
+                        });
+                    });
+                    if (!any) return;
+                }
+
+                var open = filter ? true : state.openParts.has(part.pi);
+                html += '<button class="part-head ' + (open ? 'open' : '') + '" onclick="togglePart(' + part.pi + ')">' +
+                    part.short + ' · ' + part.name + ICONS.arrow + '</button>';
+
+                if (!open) return;
+
+                part.modules.forEach(function (mod) {
+                    var items = mod.items.filter(function (it) {
+                        if (!filter) return true;
+                        return it.title.toLowerCase().indexOf(filter) > -1 ||
+                            mod.name.toLowerCase().indexOf(filter) > -1;
+                    });
+                    if (!items.length) return;
+
+                    html += '<div class="nav-group">' + mod.name + '</div>';
+                    items.forEach(function (it) {
+                        var cls = 'nav-item';
+                        if (it.n - 1 === state.index) cls += ' active';
+                        if (state.visited.has(it.id)) cls += ' done';
+                        html += '<button class="' + cls + '" onclick="go(' + (it.n - 1) + ')">' +
+                            '<span class="nav-num">' + it.n + '</span>' +
+                            '<span>' + it.title + '</span></button>';
+                    });
+                });
+            });
+
+            if (!html) html = '<div class="nav-group">No topics found</div>';
+            navEl.innerHTML = html;
+        }
+
+        function togglePart(pi) {
+            if (state.openParts.has(pi)) state.openParts.delete(pi);
+            else state.openParts.add(pi);
+            renderNav(searchEl.value);
+        }
+
+        function renderProgress() {
+            document.getElementById('progress-text').textContent = state.visited.size + ' of ' + SECTIONS.length;
+            document.getElementById('progress-bar').style.width = (state.visited.size / SECTIONS.length * 100) + '%';
+        }
+
+        function go(i) {
+            if (i < 0 || i >= SECTIONS.length) return;
+            state.index = i;
+            var s = SECTIONS[i];
+            state.visited.add(s.id);
+            state.openParts.add(s.pi);
+            localStorage.setItem('js-active', s.id);
+            localStorage.setItem('js-visited', JSON.stringify(Array.from(state.visited)));
+
+            crumbEl.textContent = s.part + ' · ' + s.title;
+            docEl.innerHTML = '<span class="tag">' + s.part + ' — ' + s.module + '</span>' + s.body +
+                '<div class="pager">' +
+                '<button ' + (i === 0 ? 'disabled' : '') + ' onclick="go(' + (i - 1) + ')">' +
+                '<small>Previous</small><b>' + (i > 0 ? SECTIONS[i - 1].title : 'Start') + '</b></button>' +
+                '<button class="next" ' + (i === SECTIONS.length - 1 ? 'disabled' : '') + ' onclick="go(' + (i + 1) + ')">' +
+                '<small>Next</small><b>' + (i < SECTIONS.length - 1 ? SECTIONS[i + 1].title : 'End') + '</b></button>' +
+                '</div>';
+
+            renderNav(searchEl.value);
+            renderProgress();
+            window.scrollTo(0, 0);
+            closeNav();
+        }
+
+        /* ---------------- Theme ---------------- */
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', state.theme);
+            themeBtn.innerHTML = state.theme === 'dark' ? ICONS.sun : ICONS.moon;
+            localStorage.setItem('js-theme', state.theme);
+        }
+
+        themeBtn.addEventListener('click', function () {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            applyTheme();
+        });
+
+        /* ---------------- Mobile nav ---------------- */
+        var menuBtn = document.getElementById('menu-btn');
+        var backdrop = document.getElementById('backdrop');
+        function closeNav() { document.body.classList.remove('nav-open'); }
+        menuBtn.addEventListener('click', function () { document.body.classList.toggle('nav-open'); });
+        backdrop.addEventListener('click', closeNav);
+
+        /* ---------------- Search & keyboard ---------------- */
+        searchEl.addEventListener('input', function () { renderNav(this.value); });
+
+        document.addEventListener('keydown', function (e) {
+            var tag = (e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea') return;
+            if (e.key === 'ArrowRight') go(state.index + 1);
+            if (e.key === 'ArrowLeft') go(state.index - 1);
+        });
+
+        /* ---------------- Init ---------------- */
+        applyTheme();
+        go(state.index);
+    </script>
+</body>
+</html>
