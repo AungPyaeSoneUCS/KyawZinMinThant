@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f1f5ef">
+    <title>Myanmar NRC Lookup</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #20332e;
+            --muted: #66766f;
+            --green: #245c48;
+            --green-dark: #194533;
+            --green-soft: #e8f1e9;
+            --red: #a13c32;
+            --line: #d8e0d8;
+            --paper: #fffefa;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 28px 18px;
+            color: var(--ink);
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+            background-color: #f1f5ef;
+            background-image: linear-gradient(rgba(36, 92, 72, .035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(36, 92, 72, .035) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        .page {
+            width: min(100%, 760px);
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 42px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: var(--green-dark);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .08em;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            border-radius: 8px;
+            background: var(--green);
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 0;
+        }
+
+        .language-toggle {
+            min-height: 40px;
+            padding: 0 14px;
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            background: var(--paper);
+            color: var(--green-dark);
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .language-toggle:hover { border-color: var(--green); }
+        :focus-visible { outline: 3px solid #a5cbb2; outline-offset: 3px; }
+
+        .intro { margin-bottom: 26px; }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: #a25335;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .14em;
+        }
+
+        h1 {
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(34px, 7vw, 52px);
+            font-weight: 500;
+            line-height: 1.08;
+        }
+
+        .intro-copy {
+            max-width: 560px;
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        .lookup-panel {
+            padding: clamp(22px, 5vw, 38px);
+            border: 1px solid rgba(32, 51, 46, .1);
+            border-radius: 8px;
+            background: var(--paper);
+            box-shadow: 0 20px 55px rgba(32, 51, 46, .09);
+        }
+
+        .mode-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-bottom: 24px;
+            padding: 4px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #f2f5f0;
+        }
+
+        .mode-button {
+            min-height: 42px;
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 4px;
+            background: transparent;
+            color: var(--muted);
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .mode-button[aria-pressed="true"] {
+            background: var(--paper);
+            color: var(--green-dark);
+            box-shadow: 0 1px 4px rgba(32, 51, 46, .12);
+        }
+
+        .mode-button:hover { color: var(--green-dark); }
+        [hidden] { display: none !important; }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: .65fr 1.4fr .75fr 1fr;
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        select {
+            width: 100%;
+            min-height: 48px;
+            padding: 0 38px 0 13px;
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            background-color: #fff;
+            color: var(--ink);
+            font: inherit;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            min-height: 48px;
+            padding: 0 13px;
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            background: #fff;
+            color: var(--ink);
+            font: inherit;
+            font-size: 14px;
+        }
+
+        select:focus { border-color: var(--green); }
+        select:disabled { background-color: #f3f5f1; color: #89938d; }
+        input:focus { border-color: var(--green); outline: 3px solid #a5cbb2; outline-offset: 2px; }
+        input:disabled { background-color: #f3f5f1; color: #89938d; }
+
+        .lookup-button {
+            width: 100%;
+            min-height: 48px;
+            margin-top: 20px;
+            border: 0;
+            border-radius: 5px;
+            background: var(--green);
+            color: #fff;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color .18s, transform .18s;
+        }
+
+        .lookup-button:hover:not(:disabled) { background: var(--green-dark); transform: translateY(-1px); }
+        .lookup-button:disabled { cursor: not-allowed; opacity: .5; }
+
+        .data-status {
+            min-height: 20px;
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .data-status.error { color: var(--red); }
+
+        .result {
+            margin-top: 18px;
+            padding: clamp(16px, 4vw, 22px);
+            border: 1px solid #c7ddca;
+            border-radius: 6px;
+            background: var(--green-soft);
+            animation: reveal .25s ease-out both;
+        }
+
+        .result[hidden] { display: none; }
+
+        .result-kicker {
+            margin: 0 0 8px;
+            color: var(--green);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .result-code {
+            margin: 0;
+            color: var(--green-dark);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(20px, 4.5vw, 28px);
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .result-note {
+            margin: 0 0 12px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .result-candidates {
+            display: grid;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .result-candidates li {
+            padding: 10px 12px;
+            border: 1px solid #c7ddca;
+            border-radius: 4px;
+            background: rgba(255, 254, 250, .7);
+            color: var(--green-dark);
+            font-size: 16px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 0;
+        }
+
+        .result-grid div { min-width: 0; }
+        .result-grid dt { margin-bottom: 5px; color: var(--muted); font-size: 12px; }
+        .result-grid dd { margin: 0; overflow-wrap: anywhere; font-size: 16px; font-weight: 700; }
+        .result-grid .locality { grid-column: 1 / -1; }
+
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 560px) {
+            body { padding: 20px 14px; }
+            .topbar { margin-bottom: 32px; }
+            .field-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+            .result-grid { grid-template-columns: 1fr; }
+            .result-grid .locality { grid-column: auto; }
+        }
+
+        @media (max-width: 380px) {
+            .field-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header class="topbar">
+            <div class="brand"><span class="brand-mark" aria-hidden="true">NRC</span><span data-i18n="brand">REFERENCE TOOL</span></div>
+            <button class="language-toggle" id="languageToggle" type="button" aria-label="Switch language">မြန်မာ</button>
+        </header>
+
+        <main>
+            <section class="intro" aria-labelledby="pageTitle">
+                <p class="eyebrow" data-i18n="eyebrow">MYANMAR IDENTITY REFERENCE</p>
+                <h1 id="pageTitle" data-i18n="title">NRC township lookup</h1>
+                <p class="intro-copy" data-i18n="intro">Choose the NRC region code and township abbreviation to view the matching names in Myanmar and English.</p>
+            </section>
+
+            <section class="lookup-panel" aria-label="NRC lookup">
+                <div class="mode-switch" role="group" aria-label="NRC tool mode">
+                    <button class="mode-button" id="buildModeButton" type="button" aria-pressed="true" data-i18n="buildMode">Build NRC</button>
+                    <button class="mode-button" id="expandModeButton" type="button" aria-pressed="false" data-i18n="expandMode">NRC to long form</button>
+                </div>
+
+                <div id="builderPanel">
+                    <form id="lookupForm">
+                    <div class="field-grid">
+                        <div>
+                            <label for="regionCode" data-i18n="regionLabel">NRC region code</label>
+                            <select id="regionCode" required disabled>
+                                <option value="" data-i18n="chooseRegion">Choose code</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="township" data-i18n="townshipLabel">Township code</label>
+                            <select id="township" required disabled>
+                                <option value="" data-i18n="chooseRegionFirst">Choose a region code first</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="nrcType" data-i18n="typeLabel">NRC type</label>
+                            <select id="nrcType" required disabled>
+                                <option value="" data-i18n="chooseType">Choose type</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="serialNumber" data-i18n="serialLabel">6-digit number</label>
+                            <input id="serialNumber" type="text" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required disabled>
+                        </div>
+                    </div>
+                    <button class="lookup-button" id="lookupButton" type="submit" disabled data-i18n="lookup">Generate NRC</button>
+                    </form>
+                    <p class="data-status" id="dataStatus" role="status" aria-live="polite">Loading NRC data...</p>
+                </div>
+
+                <div id="expandPanel" hidden>
+                    <form id="expandForm">
+                        <label for="fullNrcInput" data-i18n="expandLabel">Enter NRC number</label>
+                        <input id="fullNrcInput" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="1/BaMaNa(N) 125666" required>
+                        <button class="lookup-button" id="expandButton" type="submit" disabled data-i18n="expandButton">Show long form</button>
+                    </form>
+                    <p class="data-status" id="expandStatus" role="status" aria-live="polite">Loading NRC data...</p>
+                </div>
+
+                <section class="result" id="result" aria-live="polite" hidden>
+                    <p class="result-kicker" data-i18n="resultHeading">Generated NRC number</p>
+                    <p class="result-code" id="resultCode" aria-live="polite"></p>
+                    <p class="result-note" id="resultNote" hidden></p>
+                    <ul class="result-candidates" id="resultCandidates" hidden></ul>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                brand: 'REFERENCE TOOL',
+                eyebrow: 'MYANMAR IDENTITY REFERENCE',
+                title: 'Myanmar NRC tools',
+                intro: 'Build a correctly formatted NRC number or expand an existing number to its full township name.',
+                buildMode: 'Build NRC',
+                expandMode: 'NRC to long form',
+                regionLabel: 'NRC region code',
+                chooseRegion: 'Choose code',
+                townshipLabel: 'Township code',
+                chooseRegionFirst: 'Choose a region code first',
+                chooseTownship: 'Choose township code',
+                typeLabel: 'NRC type',
+                chooseType: 'Choose type',
+                serialLabel: '6-digit number',
+                serialPlaceholder: '000000',
+                lookup: 'Generate NRC',
+                expandLabel: 'Enter NRC number',
+                expandPlaceholder: '1/BaMaNa(N) 125666',
+                expandButton: 'Show long form',
+                loading: 'Loading NRC data...',
+                loadError: 'Could not load nrc.json. Open this page through a local web server.',
+                resultHeading: 'Generated NRC number',
+                invalidNrc: 'Enter a valid NRC format, for example 1/BaMaNa(N) 125666.',
+                nrcNotFound: 'No matching township was found in nrc.json.',
+                multipleMatches: 'This township code matches multiple localities. Check the correct locality below.',
+                languageButton: 'မြန်မာ',
+                languageLabel: 'Switch language'
+            },
+            my: {
+                brand: 'ကိုးကားရန်',
+                eyebrow: 'မြန်မာနိုင်ငံသားစိစစ်ရေး အချက်အလက်',
+                title: 'နိုင်ငံသားစိစစ်ရေးကတ် NRC',
+                intro: 'NRC နံပါတ်အသစ် ပြုလုပ်နိုင်သလို ရှိပြီးသား နံပါတ်ကို အပြည့်အစုံအဖြစ်လည်း ကြည့်နိုင်ပါသည်။',
+                buildMode: 'NRC နံပါတ် ပြုလုပ်ရန်',
+                expandMode: 'NRC အပြည့်အစုံ ကြည့်ရန်',
+                regionLabel: 'တိုင်းဒေသကြီး/ပြည်နယ် ကုဒ်',
+                chooseRegion: 'ကုဒ်ရွေးပါ',
+                townshipLabel: 'မြို့နယ်ကုဒ်',
+                chooseRegionFirst: 'တိုင်းဒေသကြီး/ပြည်နယ် ကုဒ်ကို အရင်ရွေးပါ',
+                chooseTownship: 'မြို့နယ်ကုဒ် ရွေးပါ',
+                typeLabel: 'နိုင်ငံသားအမျိုးအစား',
+                chooseType: 'အမျိုးအစား ရွေးပါ',
+                serialLabel: 'ဂဏန်း ၆ လုံး',
+                serialPlaceholder: '၀၀၀၀၀၀',
+                lookup: 'NRC နံပါတ် ပြုလုပ်ရန်',
+                expandLabel: 'NRC နံပါတ် ထည့်ပါ',
+                expandPlaceholder: '၁/ဗမန(နိုင်) ၁၂၅၆၆၆',
+                expandButton: 'အပြည့်အစုံ ကြည့်ရန်',
+                loading: 'NRC အချက်အလက်များ ဖတ်နေသည်...',
+                loadError: 'nrc.json ကို ဖတ်မရပါ။ ဤစာမျက်နှာကို local web server မှ ဖွင့်ပါ။',
+                resultHeading: 'နိုင်ငံသားစိစစ်ရေးကတ် နံပါတ်',
+                invalidNrc: 'မှန်ကန်သော NRC ပုံစံဖြင့် ထည့်ပါ။ ဥပမာ ၁/ဗမန(နိုင်) ၁၂၅၆၆၆။',
+                nrcNotFound: 'nrc.json တွင် ကိုက်ညီသော မြို့နယ်ကုဒ် မတွေ့ပါ။',
+                multipleMatches: 'ဤမြို့နယ်ကုဒ်တွင် ဒေသအမည် အများအပြား ကိုက်ညီနေပါသည်။ အောက်တွင် စစ်ဆေးပါ။',
+                languageButton: 'English',
+                languageLabel: 'ဘာသာစကား ပြောင်းရန်'
+            }
+        };
+
+        const regionSelect = document.getElementById('regionCode');
+        const townshipSelect = document.getElementById('township');
+        const typeSelect = document.getElementById('nrcType');
+        const serialInput = document.getElementById('serialNumber');
+        const lookupButton = document.getElementById('lookupButton');
+        const expandButton = document.getElementById('expandButton');
+        const fullNrcInput = document.getElementById('fullNrcInput');
+        const dataStatus = document.getElementById('dataStatus');
+        const expandStatus = document.getElementById('expandStatus');
+        const result = document.getElementById('result');
+        const resultCode = document.getElementById('resultCode');
+        const resultNote = document.getElementById('resultNote');
+        const resultCandidates = document.getElementById('resultCandidates');
+        const nrcTypes = [
+            { code: 'N', my: 'နိုင်' },
+            { code: 'E', my: 'ဧည့်' },
+            { code: 'P', my: 'ပြု' },
+            { code: 'TH', my: 'သာ' }
+        ];
+        let currentLanguage = 'en';
+        let nrcRows = [];
+        let dataState = 'loading';
+        let hasGeneratedResult = false;
+        let expandedLookup = null;
+        let currentMode = 'build';
+
+        function toMyanmarDigits(value) {
+            return String(value).replace(/[0-9]/g, digit => '၀၁၂၃၄၅၆၇၈၉'[Number(digit)]);
+        }
+
+        function toWesternDigits(value) {
+            return String(value).replace(/[၀-၉]/g, digit => String('၀၁၂၃၄၅၆၇၈၉'.indexOf(digit)));
+        }
+
+        function updateDataStatus() {
+            const language = translations[currentLanguage];
+            const message = dataState === 'loading' ? language.loading :
+                dataState === 'error' ? language.loadError : '';
+            [dataStatus, expandStatus].forEach(status => {
+                status.textContent = message;
+                status.classList.toggle('error', dataState === 'error');
+            });
+        }
+
+        function translatePage() {
+            const language = translations[currentLanguage];
+            document.documentElement.lang = currentLanguage === 'my' ? 'my' : 'en';
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                element.textContent = language[element.dataset.i18n];
+            });
+            const languageToggle = document.getElementById('languageToggle');
+            languageToggle.textContent = language.languageButton;
+            languageToggle.setAttribute('aria-label', language.languageLabel);
+            serialInput.placeholder = language.serialPlaceholder;
+            fullNrcInput.placeholder = language.expandPlaceholder;
+            if (nrcRows.length) {
+                populateRegions(regionSelect.value);
+                populateTownships(townshipSelect.value, false);
+                populateTypes(typeSelect.value);
+            }
+            updateDataStatus();
+            updateFormState();
+            updateExpandState();
+            if (hasGeneratedResult) renderResult();
+            if (expandedLookup) renderExpandedResult();
+        }
+
+        function populateRegions(selectedCode = '') {
+            const language = translations[currentLanguage];
+            regionSelect.replaceChildren(new Option(language.chooseRegion, ''));
+            const codes = [...new Set(nrcRows.map(row => row.nrc_code))]
+                .sort((first, second) => Number(first) - Number(second));
+            codes.forEach(code => {
+                const label = currentLanguage === 'my' ? toMyanmarDigits(code) : code;
+                regionSelect.add(new Option(label, code));
+            });
+            regionSelect.value = selectedCode;
+        }
+
+        function populateTownships(selectedId = '', hideResult = true) {
+            const language = translations[currentLanguage];
+            const code = regionSelect.value;
+            townshipSelect.replaceChildren(new Option(code ? language.chooseTownship : language.chooseRegionFirst, ''));
+            const entries = nrcRows.filter(row => row.nrc_code === code);
+            entries.forEach(row => {
+                const name = currentLanguage === 'my' ? row.name_mm : row.name_en;
+                townshipSelect.add(new Option(name, row.id));
+            });
+            townshipSelect.disabled = entries.length === 0;
+            townshipSelect.value = selectedId;
+            if (hideResult) clearGeneratedResult();
+            updateFormState();
+        }
+
+        function populateTypes(selectedCode = '') {
+            const language = translations[currentLanguage];
+            typeSelect.replaceChildren(new Option(language.chooseType, ''));
+            nrcTypes.forEach(type => {
+                const label = currentLanguage === 'my' ? type.my : type.code;
+                typeSelect.add(new Option(`(${label})`, type.code));
+            });
+            typeSelect.value = selectedCode;
+        }
+
+        function updateFormState() {
+            const dataLoaded = dataState === 'loaded';
+            regionSelect.disabled = !dataLoaded;
+            townshipSelect.disabled = !dataLoaded || !regionSelect.value;
+            typeSelect.disabled = !dataLoaded || !townshipSelect.value;
+            serialInput.disabled = !dataLoaded || !typeSelect.value;
+            lookupButton.disabled = !dataLoaded || !regionSelect.value || !townshipSelect.value ||
+                !typeSelect.value || toWesternDigits(serialInput.value).length !== 6;
+        }
+
+        function updateExpandState() {
+            expandButton.disabled = dataState !== 'loaded' || !fullNrcInput.value.trim();
+        }
+
+        function clearGeneratedResult() {
+            hasGeneratedResult = false;
+            expandedLookup = null;
+            result.hidden = true;
+            resultCode.textContent = '';
+            resultNote.textContent = '';
+            resultNote.hidden = true;
+            resultCandidates.replaceChildren();
+            resultCandidates.hidden = true;
+        }
+
+        function formatLongForm(row, typeCode, serial) {
+            const type = nrcTypes.find(entry => entry.code === typeCode);
+            const region = currentLanguage === 'my' ? toMyanmarDigits(row.nrc_code) : row.nrc_code;
+            const township = currentLanguage === 'my' ? row.name_mm : row.name_en;
+            const typeName = currentLanguage === 'my' ? type.my : type.code;
+            const formattedSerial = currentLanguage === 'my' ? toMyanmarDigits(serial) : serial;
+            const city = row.city_mm
+                ? `${row.city_mm}${row.city_mm.endsWith('မြို့') ? '' : 'မြို့'}`
+                : '';
+            const locality = city ? ` (${city})` : '';
+            return `${region}/${township}(${typeName}) ${formattedSerial}${locality}`;
+        }
+
+        function renderResult() {
+            const row = nrcRows.find(entry => entry.id === townshipSelect.value);
+            if (!row) return;
+            resultCode.textContent = formatLongForm(row, typeSelect.value, toWesternDigits(serialInput.value));
+            resultNote.hidden = true;
+            resultCandidates.hidden = true;
+            result.hidden = false;
+        }
+
+        function renderExpandedResult() {
+            const lines = expandedLookup.rows.map(row =>
+                formatLongForm(row, expandedLookup.typeCode, expandedLookup.serial));
+            if (lines.length === 1) {
+                resultCode.textContent = lines[0];
+                resultNote.hidden = true;
+                resultCandidates.hidden = true;
+            } else {
+                resultCode.textContent = '';
+                resultNote.textContent = translations[currentLanguage].multipleMatches;
+                resultNote.hidden = false;
+                resultCandidates.replaceChildren(...lines.map(line => {
+                    const item = document.createElement('li');
+                    item.textContent = line;
+                    return item;
+                }));
+                resultCandidates.hidden = false;
+            }
+            result.hidden = false;
+        }
+
+        function parseNrc(value) {
+            const match = value.trim().match(/^([0-9၀-၉]{1,2})\s*\/\s*(.+?)\s*\(\s*(TH|N|E|P|နိုင်|ဧည့်|ပြု|သာ)\s*\)\s*([0-9၀-၉]{6})(?:\s*\([^()]*\))?$/iu);
+            if (!match) return { error: 'invalidNrc' };
+
+            const regionCode = String(Number(toWesternDigits(match[1])));
+            const townshipCode = match[2].trim();
+            const typeValue = match[3];
+            const type = nrcTypes.find(entry => entry.code.toLowerCase() === typeValue.toLowerCase() || entry.my === typeValue);
+            if (!type) return { error: 'invalidNrc' };
+
+            const rows = nrcRows.filter(row => row.nrc_code === regionCode &&
+                (row.name_en.toLowerCase() === townshipCode.toLowerCase() || row.name_mm.trim() === townshipCode));
+            if (!rows.length) return { error: 'nrcNotFound' };
+            return { rows, typeCode: type.code, serial: toWesternDigits(match[4]) };
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            const isBuilder = mode === 'build';
+            document.getElementById('builderPanel').hidden = !isBuilder;
+            document.getElementById('expandPanel').hidden = isBuilder;
+            document.getElementById('buildModeButton').setAttribute('aria-pressed', String(isBuilder));
+            document.getElementById('expandModeButton').setAttribute('aria-pressed', String(!isBuilder));
+            clearGeneratedResult();
+            updateExpandState();
+        }
+
+        document.getElementById('buildModeButton').addEventListener('click', () => setMode('build'));
+        document.getElementById('expandModeButton').addEventListener('click', () => setMode('expand'));
+
+        document.getElementById('languageToggle').addEventListener('click', () => {
+            currentLanguage = currentLanguage === 'en' ? 'my' : 'en';
+            translatePage();
+        });
+
+        regionSelect.addEventListener('change', () => populateTownships());
+        townshipSelect.addEventListener('change', () => {
+            populateTypes();
+            clearGeneratedResult();
+            updateFormState();
+        });
+        typeSelect.addEventListener('change', () => {
+            clearGeneratedResult();
+            updateFormState();
+        });
+        serialInput.addEventListener('input', () => {
+            serialInput.value = toWesternDigits(serialInput.value).replace(/[^0-9]/g, '').slice(0, 6);
+            clearGeneratedResult();
+            updateFormState();
+        });
+
+        document.getElementById('lookupForm').addEventListener('submit', event => {
+            event.preventDefault();
+            if (toWesternDigits(serialInput.value).length !== 6) return;
+            hasGeneratedResult = true;
+            renderResult();
+        });
+
+        fullNrcInput.addEventListener('input', () => {
+            clearGeneratedResult();
+            expandStatus.textContent = '';
+            expandStatus.classList.remove('error');
+            updateExpandState();
+        });
+
+        document.getElementById('expandForm').addEventListener('submit', event => {
+            event.preventDefault();
+            clearGeneratedResult();
+            const parsed = parseNrc(fullNrcInput.value);
+            if (parsed.error) {
+                expandStatus.textContent = translations[currentLanguage][parsed.error];
+                expandStatus.classList.add('error');
+                return;
+            }
+
+            expandStatus.textContent = '';
+            expandStatus.classList.remove('error');
+            expandedLookup = parsed;
+            renderExpandedResult();
+        });
+
+        fetch('./nrc.json')
+            .then(response => {
+                if (!response.ok) throw new Error('NRC data request failed');
+                return response.json();
+            })
+            .then(payload => {
+                if (!Array.isArray(payload.data)) throw new Error('NRC data has an invalid format');
+                nrcRows = payload.data;
+                populateRegions();
+                populateTownships();
+                populateTypes();
+                dataState = 'loaded';
+                updateFormState();
+                updateExpandState();
+                updateDataStatus();
+            })
+            .catch(() => {
+                dataState = 'error';
+                updateDataStatus();
+            });
+    </script>
+</body>
+</html>
