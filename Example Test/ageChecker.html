@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title> Age Checker 18+ </title>
+</head>
+<body>
+	 <h1> Age Checker </h1>
+
+	 <input type="date" id="dobInput" required>
+
+	 <button onclick="checkAge()"> Verify Age </button>
+
+	 <p id="result"> That is Result </p>
+
+	 <script>
+       
+       function checkAge() {
+           
+           const dobValue = document.getElementById('dobInput').value;
+           const resultElement = document.getElementById('result');
+
+           if (dobValue ==="") {
+
+           	 resultElement.textContent = "Please select a date";
+
+           	 return;
+           }
+
+           const dob = new Date(dobValue);
+           const today = new Date();
+
+           let age = today.getFullYear() - dob.getFullYear();
+
+           const monthDiff = today.getMonth() - dob.getMonth();
+
+           if (monthDiff < 0 || (monthDiff ===0 && today.getDate()< dob.getDate())){
+           	age--;
+           }
+
+           
+           if (age >= 18) {
+           	 resultElement.textContent = "Your are Adult!";
+           	 
+
+           }else if (age < 18 || age > 0) {
+
+           	resultElement.textContent="Your age is under 18";
+           	
+
+           }else if (age < 0) {
+           	resultElement.textContent= "Date of brith is cannot be in the future";
+           	
+
+           }else{
+           	resultElement = "Your age is : " + age + "years old you must at lease 18";
+           	
+           }
+
+
+
+       }
+
+	 </script>
+
+
+</body>
+</html>

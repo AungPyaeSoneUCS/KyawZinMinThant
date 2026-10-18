@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail Validator</title>
+</head>
+<body>
+
+    <h1>Gmail Validator</h1>
+
+    <input type="text" id="emailInput" placeholder="username@gmail.com" required>
+
+    <button onclick="validateGmail()"> Validate </button>
+
+
+    <p id="result"></p>
+
+
+    <script>
+        function validateGmail() {
+            const emailInput = document.getElementById('emailInput').value.trim().toLowerCase();
+            const resultElement = document.getElementById('result');
+
+            // Regular expression to validate Gmail addresses
+
+            if (emailInput === '') {
+                resultElement.textContent = 'Please enter an email address.';
+                resultElement.style.color = 'red';
+                return;
+            }
+
+            if(emailInput.endsWith('@gmail.com') || emailInput.endsWith('@ucsh.edu.mm')) {
+                resultElement.textContent = 'Valid Gmail address.';
+                resultElement.style.color = 'green';
+            } else {
+                resultElement.textContent = 'Invalid Gmail address. Please enter a valid Gmail address.';
+                resultElement.style.color = 'red';
+            }
+
+           
+        }
+    </script>
+
+
+
+    
+</body>
+</html>
