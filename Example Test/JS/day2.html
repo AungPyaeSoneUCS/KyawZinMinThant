@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+</head>
+<body>
+
+    <div id="form-section">
+        <h1>Registration Form</h1>
+
+        <form id="registrationForm">
+            <p>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </p>
+
+            <p>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </p>
+
+            <p>
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </p>
+
+            <p>
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" required>
+            </p>
+
+            <p>
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Non-binary">Non-binary</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+            </p>
+
+            <p>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </p>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div id="result-section" hidden>
+        <h1>Submitted Data</h1>
+
+        <p><strong>Name:</strong> <span id="result-name"></span></p>
+        <p><strong>Email:</strong> <span id="result-email"></span></p>
+        <p><strong>Phone:</strong> <span id="result-phone"></span></p>
+        <p><strong>Date of Birth:</strong> <span id="result-dob"></span></p>
+        <p><strong>Gender:</strong> <span id="result-gender"></span></p>
+
+        <button type="button" id="backButton">Back</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("registrationForm");
+            const formSection = document.getElementById("form-section");
+            const resultSection = document.getElementById("result-section");
+            const backButton = document.getElementById("backButton");
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                // Get form values
+                const name = document.getElementById("name").value;
+                const email = document.getElementById("email").value;
+                const phone = document.getElementById("phone").value;
+                const dob = document.getElementById("dob").value;
+                const gender = document.getElementById("gender").value;
+
+                // Display submitted data
+                document.getElementById("result-name").textContent = name;
+                document.getElementById("result-email").textContent = email;
+                document.getElementById("result-phone").textContent = phone;
+                document.getElementById("result-dob").textContent = dob;
+                document.getElementById("result-gender").textContent = gender;
+
+                // Switch to the result section
+                formSection.hidden = true;
+                resultSection.hidden = false;
+            });
+
+            // Return to the registration form
+            backButton.addEventListener("click", function () {
+                resultSection.hidden = true;
+                formSection.hidden = false;
+            });
+        });
+    </script>
+
+</body>
+</html>
